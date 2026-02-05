@@ -1,0 +1,13 @@
+What is a 2D Array (Matrix)?
+A 2D array is an array of arrays.
+int[][] matrix; declare
+
+matrix = new int[3][3]; create memory
+
+int[][] matrix = {    // declare+Initialization
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+
+System.out.println(matrix[1][2]); // Output: 6

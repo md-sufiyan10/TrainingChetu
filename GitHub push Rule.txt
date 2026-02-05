@@ -1,0 +1,13 @@
+GitHub push Code : Rule yaad rakho
+
+-> Hamesha repo ke ROOT folder se command chalao
+   ===>JavaPracticeExample   ← yahin se
+
+ONE-TIME COMMANDS (Yaad rakhne wale)
+   Jab bhi new files / folders add karo 👇
+   cd "D:\Coding projects\java-program\JavaPracticeExample"
+
+git status
+git add .
+git commit -m "Added new project inside TrainingChetu"
+git push

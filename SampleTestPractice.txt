@@ -1,0 +1,384 @@
+
+
+
+
+byte	1 byte	8 bits	
+short	2 bytes	16 bits	
+int	4 bytes	32 bits	
+long	8 bytes	64 bits	
+float	4 bytes	32 bits	
+double	8 bytes	64 bits	
+char	2 bytes	16 bits	
+
+ // System.out.println(42 /6 % 2); //
+--------------------
+int x = 10;
+if(x = 5){
+    System.out.println("Yes");
+}
+-------------------
+int x = 5;
+        System.out.println(x++ + ++x);
+-------------
+int a = 5;
+        System.out.println(a++ + a++ + ++a); // a=5,6 + 6,7 + 8===> 5+6+8=>19
+---------
+String s1 = "Java";
+String s2 = "Java";
+System.out.println(s1 == s2);
+----------
+String s1 = new String("Java");
+String s2 = new String("Java");
+System.out.println(s1 == s2);
+-------------
+       String s1 = "Java";
+        String s2 = new String("Java");
+        String s3="java";
+        // System.out.println(s1 == s2);
+        // System.out.println(s1.equals(s2));
+        System.out.println(s1==s3);
+        System.out.println(s1.equals(s3));
+-------------------
+✅ 2️⃣ CODING ROUND QUESTIONS (CHETU LEVEL)
+🔹 Q1: Reverse a Number
+🔹 Q2: Palindrome Number
+🔹 Q3: Automorphic Number (VERY IMPORTANT)
+🔹 Q4: Sum of Digits until single digit
+🔹 Q5: Fibonacci Series
+------------------
+int n = 25;
+int sq = n * n;
+
+if(String.valueOf(sq).endsWith(String.valueOf(n)))
+    System.out.println("Automorphic");
+else
+    System.out.println("Not Automorphic");
+----------------------
+
+✅ 4️⃣ OUTPUT TRAP QUESTIONS (INTERVIEW FAVORITE 🔥)
+1 ) System.out.println(10/0);
+2) System.out.println(10.0/0);
+3) String s = null;
+   System.out.println(s.length());
+
+4) System.out.println('A' + 1);  A-65 Z- 90===>  a-> 97 z-122
+
+5) System.out.println(1 + 2 + "3" + 4 + 5);  // 3345 
+6) Default value of boolean variable? // false 
+
+7) Which package is imported automatically?
+   Answer: java.lang
+---------------
+8) System.out.println(42 / 6 % 2);  42/6=7 % 2 rem 1 so result is: 1
+🔹 Rule to remember---
+  / and % have same priority
+  Execution is left to right
+System.out.println(15 % 4 / 2); 15%4 rem 3 / 2 ques=1 final result 1
+
+System.out.println(5 + 10 % 4 * 2);// 5+2*2 => 5+4=9
+
+9) int x = 10;
+  System.out.println(x++ / 5 % 3); x++ → 10 (x becomes 11) 10 / 5 = 2 , 2 % 3 = 2
+    👉 Output: 2
+10) System.out.println(10.0 / 4 % 2);
+
+STEP 3: Write it as a Java 2D Array (Index-wise)
+
+P[0][0] = Mouse
+P[0][1] = Keyboard
+P[0][2] = Printer
+
+P[1][0] = Scanner
+P[1][1] = Barcode Scanner
+P[1][2] = Microphone
+------------------
+11)
+ int i = 1;
+    while(i++ <= 3)
+    System.out.print(i + " ");
+------------------
+
+for(int hour=1 ;i<=12 ; hour++){
+   for(int minute=0; minute<60 ; minute++){
+      System.out.println("Hour: "+hour +" Minute :"+minute);
+      }
+}
+----------------
+Sample arrange krna code ko
+
+1) for (k=1; k<=4; k++)  1)
+   long fa = 1, k;       2)
+
+    return fa;		3)
+     fa*=k;             4)
+-------------
+Correct way : 2->1->4->3
+
+Question 2: Arrange to calculate sum of first 10 natural numbers 
+int sum = 0, i;
+for(i=1; i<=10; i++)
+return sum;
+sum += i;
+-----------
+correct way == 1->2->4->3 (Variable, Loop, Calculation, Return) 
+--------------
+Question 3: Arrange to find product of numbers 1 to 5
+ 
+prod*= i;
+int prod=1, i;
+for(i=1 ;i <=5 ; i++)
+return prod;
+-----
+Answer===> 2->3->1->4(Declare, Loop, Calculate, Return)
+---------------------
+
+Question 4: Arrange to calculate 2^4 (2×2×2×2)
+
+return result;
+result *=2;
+int result =1 ,i;
+for(i=1; i<=4 ; i++)
+----------
+Answer ==> 3->4->2->1 (Declare, Loop, Calculate, Return)
+----------
+Question 5: Arrange to print numbers 1 to 5
+
+   for(in=1 ;i<=5 ; i++)
+   int i;
+   System.out.println(i);
+--------
+Answer==> 2->1->3 (declare, loop, Statement)
+--------------
+Remember: The correct flow is: Declare → Initialize → Loop → Calculate → Return
+
+Ques->Write a Java expression to find the square of the cube root of X?
+  
+Math.pow(Math.cbrt(X), 2)
+----------------------
+Question -> Convert the given loop into exit controlled loop.
+
+public class Loop Conversion{
+    static void main()
+{
+   System.out.println("POriginal for Loop entry loop:");
+   int a, b;
+  for(a=10; b=1; a>=1 ; a-=2)
+{
+   b=b+a;
+   b++;
+}
+  System.out.println("b values:"+b);
+
+// convert do-while loop i.e exist controlled loop 
+System.out.println("\nConverted do-while loop:");
+
+    a=10; b=1;
+    do{
+      b+=a ;
+      b++;
+      a=a-2; // a-=2	
+
+     }while(a>=1)
+    
+    System.out.println("b values:"+b);
+
+   }
+
+}
+Question=>(a) Name one String method which results in positive integer only.
+(b) Name one String method which results in a character
+----------
+        String s1="Hello";
+        System.out.println(s1.length()); // 5
+        String s2="";
+        System.out.println(s2.length()); // 0 but not negative
+    String str="java";
+     char c1=str.charAt(0); // j
+     char c2=str.charAt(2); //v
+        System.out.println(c1);
+        System.out.println(c2);
+-------------------------
+Question ===> (viii) Consider the following array and answer the questions given below:
+int a[ ] = {12,10,8,4,6,2,3,5,7}
+(a) What is the output of System.out.print(a[0]+a[5]);?
+  Answer ==> a[0]==12 ,, a[5]==2   === a[0]+a[5] ==14
+
+(b) What is the index (subscript) of the largest element of the array a[ ]?
+    int a[] = {10, 18, 4, 6, 2, 3, 12, 5, 7};
+        int maxIndex = 0;
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] > a[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        System.out.println(" Index of largest element = " + maxIndex);
+-------------------------
+  // question (ix) (a) Write the Java statement to initialise the first 6 odd numbers in a 3 × 2 array.
+
+       // first 6 od number= 1,3,5,7,9,11;
+        // 3x2 arrays : 3 rows and 2 column-> total 6 number
+        int [][] x={{1,3},{5,7},{9,11}};
+-----------------------
+(b) What is the result of x[0][1] + x[2][1] of the above array?
+          Row 0: [1, 3]    → x[0][0]=1, x[0][1]=3
+          Row 1: [5, 7]    → x[1][0]=5, x[1][1]=7
+          Row 2: [9, 11]   → x[2][0]=9, x[2][1]=11
+
+       x[0][1] = 3
+       x[2][1] = 11
+       Sum = 3 + 11 = 14 
+--------------------    
+      
+Array Practice:===
+--------------------
+Q1: int[] arr = {5, 8, 2, 9, 3, 1};
+   arr[1] + arr[4] = ?
+       8+3=11;
+Index of smallest element = ?
+  MinIndex=0;
+for(int i=0 i<arr.length;i++){
+     if(arr[i] < minIndex)
+        minIndex=i;
+}
+ System.out.println(" Index of Minimum element = " + minIndex);
+
+
+   -------------------------------
+1️⃣ Reverse an Array
+2️⃣ Find Second Largest Element in Array
+3️⃣ Count Even and Odd Numbers
+4️⃣ Check Palindrome Number
+5️⃣ Find Frequency of Each Element
+6️⃣ Reverse a String
+7️⃣ Count Vowels in String
+8️⃣ Check Anagram Strings
+9️⃣ Find Sum of Digits
+🔟 Check Prime Number
+===============================
+need more question===
+---------------------------------------------------------
+PART-B: SECTION B TYPE (CODING QUESTIONS)
+-------------
+❓ Question
+Create a class OnlineBackup with:
+accountId
+dataSize (GB)
+amount
+------------------------
+Pricing:
+First 10 GB → ₹20
+Next 20 GB → ₹15
+Above 30 GB → ₹10
+----------------------------
+->void accept()
+->void calculate() 
+->void display()
+------------------
+🟢 QUESTION-2 (Array NORM VARIATION)
+Accept 3×3 array, find NORM
+-> void norm() 
+---------
+🟢 QUESTION-3 (Super String VARIATION)
+String is Balanced if vowels = consonants
+-------------
+🟢 QUESTION-4 (Method Overloading VARIATION)
+Overload calculate()
+
+1️⃣ Area of square
+2️⃣ Area of rectangle
+3️⃣ Area of circle
+--------------------
+
+ 		*
+	     *  *  *
+	  *  *  *  *  *
+       *  *  *  *  *   * 	 	
+-------------------
+switch case allow different data type-
+-----
+✅ Allowed Data Types
+Data Type	Since
+------------------------
+byte	      Java 1.0
+short	      Java 1.0
+int	      Java 1.0
+char	     Java 1.0
+enum	     Java 5
+String	     Java 7
+Integer	       Java 5
+Character	Java 5
+---------
+7️⃣ LATEST SWITCH (Java 14+ 🚀)
+🔥 Arrow (->) Style (NO break needed)
+🎯 QUICK REVISION (1-LINER)
+Switch supports byte, short, int, char, enum, String but not float, double, long, boolean.
+--------------
+o JDK / JRE
+o Environment Setup
+- JAVA_HOME
+- JRE_HOME
+- Eclipse
+o Hello world with Command Line Arguments
+o Data Types, Variables and Arrays
+o Keywords
+o Operators
+o Control statements
+- If
+- If-else
+- switch case
+o Loops
+- while
+- do while
+- for
+- for-each
+Break
+Continue
+--------------
+o Single dimension array
+o Multi dimension array
+On Control statements, Loop and Array
+
+o OOP’s Principles
+- Inheritance
+- Encapsulation
+- Polymorphism
+ Abstraction
+o Class Fundamentals
+o Understanding of Access Controls:
+- Private, Public and Protected
+o Keywords
+- super
+- this
+- static
+- final
+o Declaration on of Objects
+- constructor
+o Instance Variable / Methods
+o Overloading and Overriding of Methods
+o Garbage Collection
+----------------------
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
