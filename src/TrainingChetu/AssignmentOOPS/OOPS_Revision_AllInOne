@@ -1,0 +1,802 @@
+==============================
+OOPS REVISION NOTES (All-in-One)
+For: AssignmentOOPS (Q10–Q23)
+==============================
+
+------------------------------
+A) QUICK NOTES (Q10–Q23)
+------------------------------
+
+Q10: Employee Hierarchy (Inheritance + Overriding)
+- Employee has: name, baseSalary
+- Manager extends Employee: adds bonus
+- Total salary:
+  - Employee: baseSalary
+  - Manager: baseSalary + bonus
+Concepts: inheritance, overriding, polymorphism (Employee ref can hold Manager obj)
+
+Q11: Animal Sound Array (Polymorphism with array)
+- Animal.makeSound(): "Animal sound"
+- Dog/Cat override makeSound()
+- Animal[] animals = {new Dog(), new Cat()};
+- for each Animal -> call makeSound()
+Concept: runtime polymorphism (dynamic method dispatch)
+
+Q14: Safe Dog Check (instanceof + downcasting)
+- Animal animal = new Dog();  // upcasting
+- if (animal instanceof Dog) { Dog d = (Dog) animal; d.bark(); }
+Why: Prevent ClassCastException
+
+Q15: Mix Animals
+- Animal[] = {Dog, Cat, Dog}
+- loop call makeSound()
+Expected:
+  Woof!
+  Meow!
+  Woof!
+Concept: same call, different outputs (polymorphism)
+
+Q17: Different Vehicles
+- Vehicle v1 = new Car();
+- Vehicle v2 = new Bike();
+- v1.move(); v2.move(); -> different outputs because move() is overridden
+Concept: overriding + polymorphism
+
+Q18: Food Calculator
+- Food.getPrice() returns 0 (base)
+- Pizza/Burger override getPrice() with real prices
+- Sum prices in Food[] using loop
+Concept: polymorphism + aggregation
+
+Q19: Playable Games (Interface)
+- interface Playable { void play(); }
+- CricketGame, VideoGame implement Playable
+- Playable[] games = { ... }
+- loop: game.play()
+Concept: interface as contract + polymorphism
+
+Q20: Product Display
+- Product has name + display()
+- Book/Laptop extend Product and override display()
+- Use Product[] shop = { new Book(...), new Laptop(...) }
+Important: If array declared as Laptop[], it can store only Laptop.
+Use Product[] for mixed children.
+
+Q21: First Abstract Shape (Abstraction)
+- abstract class Shape { abstract double area(); }
+- Rectangle implements area = l*w
+- Circle implements area = PI*r*r
+- Use Shape reference to hold Rectangle/Circle objects
+
+Q22: Abstract Animal
+- abstract class Animal { abstract void sound(); }
+- Dog extends Animal -> sound(): "Woof!"
+- new Animal() -> compile error (abstract cannot be instantiated)
+
+Q23: First Interface Flyable
+- interface Flyable { void fly(); }
+- Bird implements Flyable -> "Bird flying"
+- Airplane implements Flyable -> "Airplane flying"
+Concept: multiple implementations, same method signature, different behavior
+
+
+-----------------------------------
+B) CORE INTERVIEW CONCEPT QUESTIONS
+-----------------------------------
+
+1) Abstract class vs Interface (when to use what?)
+- Interface:
+  - capability/contract across unrelated classes
+  - supports multiple inheritance of type (implements many)
+- Abstract class:
+  - shared state (fields) + shared code (non-abstract methods)
+  - controlled base class design
+
+2) Why is new AbstractClass() not allowed?
+- Abstract class may have abstract methods without body (incomplete)
+- Must create concrete subclass implementing all abstract methods
+
+3) Overriding vs Overloading
+- Overriding:
+  - same name + same parameters in child
+  - runtime polymorphism
+- Overloading:
+  - same name, different parameters
+  - compile-time decision
+
+4) Upcasting and Downcasting
+- Upcasting: Parent p = new Child(); (safe)
+- Downcasting: Child c = (Child)p; (needs instanceof to be safe)
+
+5) Why parent arrays/references are powerful?
+- Example: Product[] can hold Laptop, Notes, Book
+- loop can call overridden methods without knowing exact class
+
+6) Interface variables in Java
+- interface fields are automatically: public static final (constants)
+
+
+---------------------------------------
+C) EDGE/TRICKY QUESTIONS (Concept Level)
+---------------------------------------
+
+1) Can abstract class have constructor?
+- Yes. Called by subclasses via super(...).
+
+2) Can abstract class have zero abstract methods?
+- Yes. Still prevents instantiation and can enforce design.
+
+3) Can interface have methods with body?
+- Yes: default methods, static methods (Java 8+).
+
+4) If two interfaces provide same default method:
+- Implementing class MUST override to resolve ambiguity.
+
+5) If class and interface both define same method signature:
+- Class method wins ("class beats interface").
+
+6) Can static methods be overridden?
+- No. Static methods are hidden, not overridden.
+
+
+-------------------------------------
+D) CODE-BASED INTERVIEW QUESTIONS
+(Predict Output / Find Error)
+-------------------------------------
+
+Q1: Why compile error?
+interface I { default void show(){ System.out.println("I"); } }
+class P { public void show(){ System.out.println("P"); } }
+class C extends P implements I {}
+Output?
+- Answer: P  (class wins)
+
+Q2: Two default methods conflict (what happens?)
+interface A { default void m(){ System.out.println("A"); } }
+interface B { default void m(){ System.out.println("B"); } }
+class C implements A, B { }
+- Answer: Compile-time error unless C overrides m()
+
+Q3: Safe casting
+Animal a = new Cat();
+Dog d = (Dog)a;
+- Answer: Runtime ClassCastException
+Fix: if (a instanceof Dog) { ... }
+
+Q4: Array type mismatch (your Product case)
+Laptop[] shop = { new Laptop(...), new Notes(...) };
+- Answer: Compile error because Notes is not a Laptop
+Fix: Product[] shop = { new Laptop(...), new Notes(...) };
+
+
+--------------------------
+E) MCQs (with Answers)
+--------------------------
+
+1) Abstract class can have:
+A) Only abstract methods
+B) Only final methods
+C) Abstract and non-abstract methods
+D) No methods
+Answer: C
+
+2) Which is true about interface variables?
+A) private by default
+B) public static final by default
+C) protected by default
+D) instance variables
+Answer: B
+
+3) Can we create object of abstract class?
+A) Yes
+B) No
+C) Only inside same package
+D) Only using new keyword with anonymous class not possible
+Answer: B
+
+4) If a class implements an interface, it must:
+A) override all methods or be abstract
+B) override none
+C) override only static methods
+D) override only default methods
+Answer: A
+
+5) Overriding happens at:
+A) compile time
+B) runtime
+C) link time
+D) none
+Answer: B
+
+6) Overloading happens at:
+A) runtime
+B) compile time
+C) depends on JVM
+D) none
+Answer: B
+
+7) Which supports multiple inheritance in Java?
+A) Abstract class
+B) Interface (multiple implements)
+C) Both using extends
+D) None
+Answer: B
+
+8) What happens if you don’t override conflicting default methods?
+A) runtime error
+B) compile-time error
+C) first interface wins
+D) last interface wins
+Answer: B
+
+9) `instanceof` is used for:
+A) compile-time method binding
+B) checking object type at runtime
+C) creating objects
+D) overloading methods
+Answer: B
+
+10) Which is valid?
+A) abstract class A { abstract void m() {} }
+B) abstract class A { abstract void m(); }
+C) interface I { I(){} }
+D) interface I { private int x; }
+Answer: B
+
+11) Interface can contain:
+A) constructors
+B) instance fields
+C) default methods
+D) protected methods by default
+Answer: C
+
+12) Output?
+class P { void show(){ System.out.println("P"); } }
+class C extends P { void show(){ System.out.println("C"); } }
+P p = new C(); p.show();
+A) P
+B) C
+C) compile error
+D) runtime error
+Answer: B
+
+13) Which is correct statement?
+A) static methods are overridden
+B) static methods are hidden
+C) static methods must be abstract
+D) static methods cannot exist in interfaces
+Answer: B
+
+14) Which is NOT possible?
+A) interface extends interface
+B) class implements interface
+C) interface implements class
+D) class implements multiple interfaces
+Answer: C
+
+15) If abstract class has 1 abstract method, subclass must:
+A) implement it always
+B) implement it or be abstract
+C) ignore it
+D) JVM implements automatically
+Answer: B
+
+16) What is upcasting?
+A) Child reference to Parent object
+B) Parent reference to Child object
+C) casting primitive to wrapper
+D) none
+Answer: B
+
+17) What is downcasting?
+A) Parent ref holding child object cast back to child type
+B) Child ref holding parent object
+C) auto boxing
+D) none
+Answer: A
+
+18) In polymorphism, method is chosen based on:
+A) reference type at compile time
+B) object type at runtime (overriding)
+C) package name
+D) variable name
+Answer: B
+
+19) `new Animal()` gives error because:
+A) Animal has no constructor
+B) Animal is abstract
+C) Animal has private methods
+D) Animal is final
+Answer: B
+
+20) Best array type for mixed child objects (Laptop + Notes) is:
+A) Laptop[]
+B) Notes[]
+C) Product[]
+D) Object (always only)
+Answer: C
+
+
+---------------------------------------------
+F) MINI PRACTICE TASKS (Try Yourself)
+---------------------------------------------
+
+1) Create interface `Chargeable` with method `charge()`.
+   Implement `Phone`, `Laptop`. Store in `Chargeable[]` and call charge().
+
+2) Create abstract class `Employee` with abstract double salary().
+   Create `FullTimeEmployee`, `PartTimeEmployee`.
+
+3) Create Vehicle example:
+   - override move()
+   - add child-specific methods (openTrunk(), doWheelie())
+   - use instanceof pattern matching to call specific methods safely.
+
+
+==============================
+END OF FILE
+==============================
+=========================================
+MCQ SET (55+) — Abstraction + Interfaces
+With Answers + Why
+=========================================
+
+1) Which statement about abstract classes is TRUE?
+A. Abstract classes cannot have constructors
+B. Abstract classes cannot have fields
+C. Abstract classes can have both abstract and concrete methods
+D. Abstract classes must have at least one abstract method
+Answer: C
+Why: Abstract classes may contain fields, constructors, concrete methods, and abstract methods.
+
+2) Can an abstract class be instantiated using `new`?
+A. Yes, always
+B. Yes, if it has no abstract methods
+C. No
+D. Only inside same package
+Answer: C
+Why: `new AbstractClass()` is not allowed; abstract class is incomplete.
+
+3) If a subclass does not implement all abstract methods of its abstract parent, then:
+A. Code compiles, runs with default implementation
+B. Subclass must be declared abstract
+C. JVM implements missing methods
+D. Only warning occurs
+Answer: B
+Why: A concrete class must implement all inherited abstract methods.
+
+4) Which is NOT allowed in an interface?
+A. abstract method
+B. default method
+C. static method
+D. constructor
+Answer: D
+Why: Interfaces cannot have constructors.
+
+5) Interface fields are implicitly:
+A. private and final
+B. public static final
+C. protected static
+D. public transient
+Answer: B
+Why: All interface variables are constants by default.
+
+6) What happens if you try to assign to an interface variable?
+A. Allowed
+B. Runtime error
+C. Compile-time error
+D. Value changes only for that object
+Answer: C
+Why: Interface fields are final constants.
+
+7) A class can implement:
+A. only one interface
+B. two or more interfaces
+C. only interfaces with no methods
+D. only one interface and one abstract class
+Answer: B
+Why: Java supports multiple inheritance via interfaces.
+
+8) A class can extend:
+A. multiple classes
+B. exactly one class
+C. zero interfaces
+D. only abstract classes
+Answer: B
+Why: Java allows single inheritance for classes.
+
+9) Which keyword is used to implement an interface?
+A. extends
+B. implements
+C. inherit
+D. interface
+Answer: B
+Why: Classes implement interfaces using `implements`.
+
+10) Overriding requires:
+A. same method name + same parameters + inheritance
+B. same method name + different parameters
+C. different method name + same parameters
+D. only same return type
+Answer: A
+Why: Overriding is redefining parent method in child.
+
+11) Overloading is:
+A. runtime polymorphism
+B. compile-time polymorphism
+C. only possible with inheritance
+D. not allowed in Java
+Answer: B
+Why: Overload resolution happens at compile time.
+
+12) Runtime polymorphism happens with:
+A. method overloading
+B. method overriding
+C. constructors
+D. static methods
+Answer: B
+Why: Dynamic dispatch chooses overridden method at runtime.
+
+13) What is the output?
+class P { void show(){ System.out.println("P"); } }
+class C extends P { void show(){ System.out.println("C"); } }
+P p = new C(); p.show();
+A. P
+B. C
+C. Compile error
+D. Runtime error
+Answer: B
+Why: Runtime chooses actual object method (C.show).
+
+14) Upcasting example is:
+A. Child c = new Parent();
+B. Parent p = new Child();
+C. Parent p = (Parent)new Object();
+D. Child c = (Child)new Parent();
+Answer: B
+Why: Parent reference holding child object is upcasting.
+
+15) Downcasting is:
+A. always safe
+B. safe only with instanceof check
+C. never allowed
+D. same as upcasting
+Answer: B
+Why: Wrong downcast causes ClassCastException.
+
+16) What does `instanceof` do?
+A. converts object type
+B. checks object type at runtime
+C. creates object
+D. checks at compile time only
+Answer: B
+Why: It tests whether reference refers to an instance of a class/interface.
+
+17) If `Animal a = new Cat();` then `a instanceof Dog` is:
+A. true
+B. false
+C. compile error
+D. runtime error
+Answer: B
+Why: Actual object is Cat, not Dog.
+
+18) If you cast wrongly, e.g., `Dog d = (Dog) new Cat();`:
+A. compile error
+B. runtime ClassCastException
+C. prints nothing
+D. works with warning
+Answer: B
+Why: Cast compiles but fails at runtime.
+
+19) Can an interface extend another interface?
+A. No
+B. Yes
+C. Only if parent has no methods
+D. Only with implements keyword
+Answer: B
+Why: Interfaces use `extends` to inherit from other interfaces.
+
+20) Can a class implement an interface and extend a class at same time?
+A. No
+B. Yes
+C. Only if class is final
+D. Only if interface is empty
+Answer: B
+Why: `class X extends A implements I1, I2 {}` is valid.
+
+21) If two interfaces have same default method and class implements both, then:
+A. JVM picks one automatically
+B. Compile error unless class overrides
+C. Runtime error
+D. default method is ignored
+Answer: B
+Why: Ambiguity must be resolved by overriding.
+
+22) If a superclass has concrete method and interface has default method with same signature:
+A. interface method wins
+B. class method wins
+C. compile error
+D. runtime error
+Answer: B
+Why: “Class wins” over interface default methods.
+
+23) Can an abstract class implement an interface?
+A. No
+B. Yes
+C. Only if interface is empty
+D. Only if abstract class is final
+Answer: B
+Why: It can implement and optionally leave methods abstract.
+
+24) Can a class override a static method?
+A. Yes
+B. No, static methods are hidden
+C. Only in interfaces
+D. Only if method is private
+Answer: B
+Why: Static binding; not polymorphic.
+
+25) Can an interface have static methods?
+A. No
+B. Yes
+C. Only abstract interfaces
+D. Only with protected
+Answer: B
+Why: Interfaces can contain static methods (Java 8+).
+
+26) Can an interface have private methods?
+A. No
+B. Yes (Java 9+)
+C. Only public
+D. Only protected
+Answer: B
+Why: Private methods can support default methods internally.
+
+27) What is the output?
+interface I { default void f(){ System.out.println("I"); } }
+class A { public void f(){ System.out.println("A"); } }
+class B extends A implements I {}
+new B().f();
+A. I
+B. A
+C. Compile error
+D. Runtime error
+Answer: B
+Why: Class method overrides default interface method.
+
+28) Which is a correct reason to use interface?
+A. to share instance variables
+B. to provide common contract across unrelated classes
+C. to enforce single inheritance
+D. to avoid polymorphism
+Answer: B
+Why: Interface models capability/contract.
+
+29) Which is a correct reason to use abstract class?
+A. multiple inheritance of implementation
+B. to store shared state + partial implementation for subclasses
+C. to create objects directly
+D. to enforce constants only
+Answer: B
+Why: Abstract class can keep fields & shared code.
+
+30) What happens if you declare:
+abstract class A { abstract void m(); }
+class B extends A { }
+A. Compiles fine
+B. Compile error
+C. Runtime error
+D. Only warning
+Answer: B
+Why: B must implement m() or be abstract.
+
+31) What happens here?
+abstract class A { abstract void m(); }
+abstract class B extends A { }
+A. Compile error
+B. Compiles fine
+C. Runtime error
+D. Must implement m()
+Answer: B
+Why: B is abstract, so it can skip implementing abstract methods.
+
+32) Which method cannot be abstract?
+A. final method
+B. static method
+C. private method
+D. all of the above
+Answer: D
+Why: Abstract requires overriding; final/static/private cannot be overridden properly.
+
+33) Which is true about abstract methods?
+A. they must have body
+B. they cannot be overridden
+C. they have no body
+D. they must be static
+Answer: C
+Why: Abstract method ends with semicolon.
+
+34) If you have `Shape s = new Circle();` and `s.area()` is called:
+A. Shape.area runs always
+B. Circle.area runs
+C. compile error
+D. runtime error
+Answer: B
+Why: Overridden method chosen at runtime.
+
+35) Which is compile-time polymorphism?
+A. overriding
+B. overloading
+C. dynamic dispatch
+D. downcasting
+Answer: B
+Why: Method chosen based on parameters at compile time.
+
+36) Can constructors be overloaded?
+A. No
+B. Yes
+C. Only in abstract classes
+D. Only in interfaces
+Answer: B
+Why: Multiple constructors with different parameters are allowed.
+
+37) If an interface method is not declared default/static/private, it is:
+A. public abstract by default
+B. protected abstract
+C. private abstract
+D. package-private abstract
+Answer: A
+Why: Interface methods are implicitly public abstract.
+
+38) Can you reduce visibility when overriding?
+A. Yes, always
+B. No
+C. Only in same package
+D. Only if method is final
+Answer: B
+Why: You cannot make overridden method more restrictive.
+
+39) Which is true?
+A. A final class can be extended
+B. A final method can be overridden
+C. An abstract method can be final
+D. A final class cannot be extended
+Answer: D
+Why: final class blocks inheritance.
+
+40) What is the output?
+class A { void m(){ System.out.println("A"); } }
+class B extends A { void m(){ System.out.println("B"); } }
+A x = new B(); x.m();
+A. A
+B. B
+C. Compile error
+D. Runtime error
+Answer: B
+Why: Runtime dispatch chooses B.m.
+
+41) If you store different subclass objects in parent array:
+A. not possible
+B. possible if they share same parent type
+C. only possible with Object[]
+D. possible only for interfaces
+Answer: B
+Why: Parent array can hold any subclass objects.
+
+42) Which is correct?
+A. interface implements interface
+B. interface extends interface
+C. class extends interface
+D. class implements class
+Answer: B
+Why: Interfaces extend interfaces; classes implement interfaces.
+
+43) If a method is declared in parent but not overridden in child:
+A. child must override it
+B. parent version is used
+C. compile error
+D. runtime error
+Answer: B
+Why: Inheritance provides default parent behavior.
+
+44) Can abstract class have concrete methods?
+A. No
+B. Yes
+C. only static
+D. only private
+Answer: B
+Why: Abstract class can mix both.
+
+45) Which relationship is correct?
+A. Dog has-a Animal
+B. Dog is-a Animal (if extends)
+C. Dog uses-a Animal
+D. Dog part-of Animal
+Answer: B
+Why: Extends represents IS-A.
+
+46) Interface is best described as:
+A. object blueprint with fields
+B. contract/specification
+C. final class
+D. constructor holder
+Answer: B
+Why: Interface defines required behaviors.
+
+47) Which is TRUE about polymorphism?
+A. one method name, many forms of behavior
+B. many method names, one behavior
+C. no inheritance needed
+D. only works with static methods
+Answer: A
+Why: Polymorphism = same interface, different implementations.
+
+48) If you declare `Laptop[] arr = { new Laptop(), new Notes() };`
+A. compiles fine
+B. runtime error
+C. compile-time type mismatch
+D. prints both
+Answer: C
+Why: Laptop[] can store only Laptop objects.
+
+49) Correct fix for mixed products is:
+A. Laptop[] arr
+B. Notes[] arr
+C. Product[] arr
+D. int[] arr
+Answer: C
+Why: Parent array stores any child objects.
+
+50) If a class implements interface, interface methods must be:
+A. implemented with public visibility
+B. implemented with private visibility
+C. implemented with protected visibility
+D. any visibility
+Answer: A
+Why: Interface methods are public; implementation cannot reduce visibility.
+
+51) What happens if you try to call child-only method on parent ref?
+Parent p = new Child();
+p.childMethod();
+A. compile error
+B. runtime error
+C. works fine
+D. warning only
+Answer: A
+Why: Compiler checks reference type methods, not object type.
+
+52) How to call child-only method safely?
+A. just cast always
+B. use instanceof check then cast
+C. use super
+D. use this
+Answer: B
+Why: Prevent ClassCastException.
+
+53) Can you create an object of interface?
+A. Yes
+B. No
+C. only with `new Interface()`
+D. only in same package
+Answer: B
+Why: Interfaces cannot be instantiated directly.
+
+54) Which of these is correct?
+A. abstract class must implement all interface methods
+B. abstract class may skip and remain abstract
+C. interface can extend class
+D. class can extend two classes
+Answer: B
+Why: Abstract class can leave methods unimplemented.
+
+55) Why do we use abstract method in abstract class?
+A. to provide full code
+B. to force subclasses to provide implementation
+C. to avoid inheritance
+D. to increase memory
+Answer: B
+Why: It enforces a template/contract for subclasses.
+
+=========================================
+END — 55 MCQs with answers + why
+=========================================
