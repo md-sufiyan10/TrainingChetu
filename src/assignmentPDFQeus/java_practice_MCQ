@@ -1,0 +1,983 @@
+=====================================================================
+JAVA PRACTICE FULL NOTES (Q + ANSWER + EXPLANATION IN ONE FILE)
+TOPICS: Math class, String methods, Constructor Overloading,
+Method Overloading, Palindrome, Splitting/Parsing, Wrapper parse methods
+=====================================================================
+
+
+========================
+SECTION A: MATH CLASS
+========================
+
+A1) Question:
+Return type of Math.sqrt(81) is:
+A) int  B) float  C) double  D) long
+
+Answer:
+C) double
+
+Explanation:
+Math.sqrt(...) always returns double, even if the answer is a whole number.
+
+
+A2) Question:
+Output of: System.out.println(Math.max(12, 5));
+A) 12  B) 5  C) true  D) compile error
+
+Answer:
+A) 12
+
+Explanation:
+Math.max(a,b) returns the bigger value.
+
+
+A3) Question:
+Output of: System.out.println(Math.min(-2, -5));
+A) -2  B) -5  C) 0  D) compile error
+
+Answer:
+B) -5
+
+Explanation:
+Math.min(a,b) returns the smaller value. -5 is smaller than -2.
+
+
+A4) Question:
+Output of: System.out.println(Math.abs(-0));
+A) 0  B) -0  C) error  D) depends on JVM
+
+Answer:
+A) 0
+
+Explanation:
+For int, -0 is same as 0. Absolute value of 0 is 0.
+
+
+A5) Question:
+Output of: System.out.println(Math.floor(9.99));
+A) 9  B) 10  C) 9.0  D) 10.0
+
+Answer:
+C) 9.0
+
+Explanation:
+floor(x) returns greatest integer <= x, and return type is double.
+
+
+A6) Question:
+Output of: System.out.println(Math.ceil(9.01));
+A) 9  B) 10  C) 9.0  D) 10.0
+
+Answer:
+D) 10.0
+
+Explanation:
+ceil(x) returns smallest integer >= x, and return type is double.
+
+
+A7) Question:
+Output of: System.out.println(Math.round(5.5));
+A) 5  B) 6  C) 5.5  D) error
+
+Answer:
+B) 6
+
+Explanation:
+round() rounds to nearest whole number. 5.5 rounds up.
+For double input, Math.round returns long, but prints 6.
+
+
+A8) Question:
+Output of: System.out.println(Math.pow(2, 3));
+A) 6  B) 8  C) 9  D) 2
+
+Answer:
+B) 8
+
+Explanation:
+2^3 = 8. Return type is double so actual printed can be 8.0 in some formats.
+
+
+A9) Question:
+Math.random() returns value in range:
+A) 0 to 1 inclusive
+B) 0.0 (inclusive) to 1.0 (exclusive)
+C) 1 to 10
+D) -1 to 1
+
+Answer:
+B) 0.0 (inclusive) to 1.0 (exclusive)
+
+Explanation:
+It can return 0.0 but never 1.0.
+
+
+A10) Question:
+Which one is correct?
+A) Math is an object
+B) Math methods are mostly static
+C) Math.sqrt returns int
+D) Math.random returns int
+
+Answer:
+B) Math methods are mostly static
+
+Explanation:
+You call them like Math.sqrt(...), no object needed.
+
+
+=============================
+SECTION B: STRING METHODS
+=============================
+
+B1) Question:
+Return type of s.length() is:
+A) long  B) int  C) boolean  D) String
+
+Answer:
+B) int
+
+Explanation:
+length() returns number of characters and its return type is int.
+
+
+B2) Question:
+Return type of s.charAt(0) is:
+A) char  B) String  C) int  D) boolean
+
+Answer:
+A) char
+
+Explanation:
+charAt(index) returns one character (char).
+
+
+B3) Question:
+Return type of s.indexOf("a") is:
+A) boolean  B) int  C) String  D) char
+
+Answer:
+B) int
+
+Explanation:
+indexOf returns index position; -1 if not found.
+
+
+B4) Question:
+Return type of s.substring(2, 4) is:
+A) char  B) String  C) int  D) void
+
+Answer:
+B) String
+
+Explanation:
+substring returns a new String part of original string.
+
+
+B5) Question:
+Return type of s.toUpperCase() is:
+A) String  B) void  C) char[]  D) boolean
+
+Answer:
+A) String
+
+Explanation:
+Strings are immutable; toUpperCase returns a new String.
+
+
+B6) Question:
+Which method returns boolean?
+A) equals()  B) concat()  C) trim()  D) replace()
+
+Answer:
+A) equals()
+
+Explanation:
+equals compares content and returns true/false.
+
+
+B7) Question:
+Output:
+String s="java";
+System.out.println(s.startsWith("ja"));
+
+Answer:
+true
+
+Explanation:
+"java" starts with "ja".
+
+
+B8) Question:
+Output:
+String s="Hello";
+System.out.println(s.replace('l','L'));
+
+Answer:
+HeLLo
+
+Explanation:
+replace changes all matching characters 'l' to 'L'.
+
+
+B9) Question:
+Output:
+String s="  Hi  ";
+System.out.println(s.trim().length());
+
+Answer:
+2
+
+Explanation:
+trim removes leading/trailing spaces -> "Hi", length is 2.
+
+
+B10) Question:
+Output:
+String s="ababa";
+System.out.println(s.lastIndexOf('b'));
+
+Answer:
+3
+
+Explanation:
+'b' appears at index 1 and 3. lastIndexOf gives 3.
+
+
+================================
+SECTION C: CONSTRUCTORS
+================================
+
+C1) Question:
+Constructor overloading means:
+A) same name, different parameter list
+B) different name, same parameter list
+C) same name, different return type
+D) adding static to constructor
+
+Answer:
+A) same name, different parameter list
+
+Explanation:
+Multiple constructors in same class with different parameters.
+
+
+C2) Question:
+Which is true?
+A) Constructor can be static
+B) Constructor can return a value using return statement
+C) Constructor name must match class name
+D) Constructor can be inherited
+
+Answer:
+C) Constructor name must match class name
+
+Explanation:
+Constructor name is exactly same as class name and has no return type.
+
+
+C3) Question:
+If no constructor is written, Java provides:
+A) parameterized constructor
+B) default constructor (no-arg)
+C) copy constructor
+D) private constructor
+
+Answer:
+B) default constructor (no-arg)
+
+Explanation:
+Compiler gives default constructor only when you define no constructor at all.
+
+
+C4) Question:
+Which keyword is used to call another constructor in same class?
+A) super  B) this  C) final  D) static
+
+Answer:
+B) this
+
+Explanation:
+this(...) calls another constructor in same class.
+
+
+C5) Question:
+When you call this(...), it must be:
+A) last statement in constructor
+B) first statement in constructor
+C) anywhere in constructor
+D) not allowed
+
+Answer:
+B) first statement in constructor
+
+Explanation:
+Java requires constructor chaining call as the first line.
+
+
+================================
+SECTION D: METHOD OVERLOADING
+================================
+
+D1) Question:
+Method overloading depends on:
+A) method name only
+B) return type only
+C) parameter list (count/type/order)
+D) access modifier only
+
+Answer:
+C) parameter list (count/type/order)
+
+Explanation:
+Same method name but different parameters creates overload.
+
+
+D2) Question:
+Which is NOT valid overloading?
+A) int add(int,int), int add(int,int,int)
+B) int add(int,int), double add(int,int)
+C) void add(int), void add(double)
+D) void add(int), void add(int,int)
+
+Answer:
+B) int add(int,int), double add(int,int)
+
+Explanation:
+Only return type changed, parameters same => NOT overloading => compile error.
+
+
+D3) Question:
+void f(int x){...}
+void f(double x){...}
+Call: f(10L) will select:
+A) int  B) double  C) error  D) depends
+
+Answer:
+B) double
+
+Explanation:
+There is no f(long). long can widen to double, so f(double) is chosen.
+
+
+D4) Question:
+void g(Integer x){...}
+void g(String x){...}
+Call: g(null) results in:
+A) calls Integer
+B) calls String
+C) ambiguity compile error
+D) runtime error
+
+Answer:
+C) ambiguity compile error
+
+Explanation:
+null matches both Integer and String equally, compiler cannot decide.
+
+
+D5) Question:
+Can we overload main method?
+A) No
+B) Yes, but JVM calls only public static void main(String[] args)
+C) Yes, JVM calls all mains
+D) Depends
+
+Answer:
+B) Yes, but JVM calls only public static void main(String[] args)
+
+Explanation:
+Overloaded mains are normal methods; JVM runs only standard signature.
+
+
+================================
+SECTION E: PALINDROME LOGIC
+================================
+
+E1) Question:
+Best logic to reverse number uses:
+A) recursion only
+B) while loop with % and / operators
+C) switch case
+D) ternary only
+
+Answer:
+B) while loop with % and / operators
+
+Explanation:
+Use %10 to get last digit, /10 to remove last digit.
+
+
+E2) Question:
+For negative numbers (-121), palindrome check usually returns:
+A) true  B) false  C) error  D) depends always true
+
+Answer:
+B) false
+
+Explanation:
+The negative sign breaks palindrome logic (unless special handling).
+
+
+E3) Question:
+String palindrome check should consider:
+A) spaces/punctuation removed if asked
+B) case handled if asked
+C) both A and B
+D) none
+
+Answer:
+C) both A and B
+
+Explanation:
+Many problems want ignoring spaces and case (normalize first).
+
+
+=========================================
+SECTION F: SPLITTING BIG DATA / PARSING
+=========================================
+
+F1) Question:
+"a  b   c".split(" ") produces:
+A) [a,b,c]
+B) includes empty strings also
+C) error
+D) null
+
+Answer:
+B) includes empty strings also
+
+Explanation:
+Splitting by single space " " treats each space separately, multiple spaces create empty tokens.
+
+
+F2) Question:
+Best to split by one or more spaces:
+A) split(" ")
+B) split("\\s+")
+C) split("\s+")
+D) split("/s+")
+
+Answer:
+B) split("\\s+")
+
+Explanation:
+\\s+ is regex for one or more whitespace characters.
+
+
+F3) Question:
+To split "a|b|c" by '|' you should use:
+A) split("|")
+B) split("\\|")
+C) split("||")
+D) split("/|")
+
+Answer:
+B) split("\\|")
+
+Explanation:
+| is a regex special character, so escape it with \\|.
+
+
+F4) Question:
+"a,b,".split(",") will:
+A) keep last empty token
+B) drop last empty token
+C) throw exception
+D) return null
+
+Answer:
+B) drop last empty token
+
+Explanation:
+Default split removes trailing empty strings.
+
+
+F5) Question:
+To keep trailing empty tokens:
+A) split(",", -1)
+B) split(",", 0)
+C) split(",")
+D) split("/", -1)
+
+Answer:
+A) split(",", -1)
+
+Explanation:
+Negative limit preserves trailing empty tokens.
+
+
+=========================================
+SECTION G: WRAPPER CLASS + PARSE METHODS
+=========================================
+
+G1) Question:
+Integer.parseInt("12") returns:
+A) "12"  B) 12.0  C) 12  D) error
+
+Answer:
+C) 12
+
+Explanation:
+parseInt converts String to primitive int.
+
+
+G2) Question:
+Which throws NumberFormatException?
+A) Integer.parseInt(" 12")
+B) Integer.parseInt("12")
+C) Integer.parseInt("-12")
+D) Integer.parseInt("0")
+
+Answer:
+A) Integer.parseInt(" 12")
+
+Explanation:
+Spaces are invalid. Use trim() before parsing.
+
+
+G3) Question:
+Output:
+System.out.println(Boolean.parseBoolean("TRUE"));
+A) true  B) false  C) error  D) null
+
+Answer:
+A) true
+
+Explanation:
+Boolean.parseBoolean is case-insensitive for "true". Only "true" => true; others => false.
+
+
+G4) Question:
+Output:
+System.out.println(Double.parseDouble("12.50") + 1);
+
+Answer:
+13.5
+
+Explanation:
+"12.50" becomes 12.5, then +1 => 13.5.
+
+
+G5) Question:
+Output:
+System.out.println(Integer.parseInt("FF", 16));
+
+Answer:
+255
+
+Explanation:
+FF in hexadecimal is 255 in decimal.
+
+
+====================================================
+SECTION H: EDGE CASE QUESTIONS (Short Answers)
+====================================================
+
+H1) Question:
+Why binary search requires sorted data? What happens if data is unsorted?
+
+Answer:
+Binary search requires sorted data.
+
+Explanation:
+It compares mid element and discards half the array. If data is unsorted, it can discard the correct part and give wrong result (not found).
+
+
+H2) Question:
+What happens if you do: "abc".charAt(3)?
+
+Answer:
+StringIndexOutOfBoundsException
+
+Explanation:
+Valid indexes are 0,1,2 only. Index 3 is out of range.
+
+
+H3) Question:
+What happens if you do: "abc".substring(1, 5)?
+
+Answer:
+StringIndexOutOfBoundsException
+
+Explanation:
+End index cannot be greater than string length (3).
+
+
+H4) Question:
+What is the difference between equals() and == for String?
+
+Answer:
+== compares reference, equals() compares content.
+
+Explanation:
+Two different String objects can have same content but different references.
+
+
+H5) Question:
+What happens if Integer.parseInt("999999999999") is executed?
+
+Answer:
+NumberFormatException
+
+Explanation:
+Value is larger than int range, parsing fails.
+
+
+H6) Question:
+In split, why special characters like "." and "|" need escaping?
+
+Answer:
+Because split uses regex.
+
+Explanation:
+"." means any character, "|" means OR in regex. Escape them using "\\." and "\\|".
+
+
+H7) Question:
+Palindrome for "Nurses Run" - what preprocessing needed?
+
+Answer:
+Remove spaces and convert to same case.
+
+Explanation:
+Compare normalized string "nursesrun" with its reverse.
+
+
+H8) Question:
+Why String is immutable? Give one benefit.
+
+Answer:
+Immutability improves security and allows caching.
+
+Explanation:
+String used as keys in HashMap stay consistent; also safe to share across code.
+
+
+H9) Question:
+What happens with Math.sqrt(-1)? (in Java)
+
+Answer:
+NaN
+
+Explanation:
+Square root of negative number is not real; Java returns Not-a-Number (NaN).
+
+
+H10) Question:
+What happens when calling overloaded methods with null and multiple reference types?
+
+Answer:
+Ambiguity compile error (in many cases).
+
+Explanation:
+If two overloads accept different reference types and both match null equally, compiler cannot choose.
+
+
+====================================================
+SECTION I: PREDICT THE OUTPUT
+====================================================
+
+I1) Question:
+String s="Java";
+System.out.println(s.substring(1,3));
+
+Answer:
+av
+
+Explanation:
+substring(1,3) takes index 1 and 2 (3 is excluded).
+
+
+I2) Question:
+String a="Hi";
+String b=new String("Hi");
+System.out.println(a==b);
+System.out.println(a.equals(b));
+
+Answer:
+false
+true
+
+Explanation:
+== compares reference (different objects). equals compares content (same content).
+
+
+I3) Question:
+System.out.println(Math.round(2.5));
+System.out.println(Math.round(2.49));
+
+Answer:
+3
+2
+
+Explanation:
+2.5 rounds up, 2.49 rounds down.
+
+
+I4) Question:
+System.out.println("12"+3+4);
+System.out.println(12+3+4);
+
+Answer:
+1234
+19
+
+Explanation:
+First is String concat left-to-right. Second is numeric addition.
+
+
+I5) Question:
+System.out.println(Integer.parseInt("010"));
+
+Answer:
+10
+
+Explanation:
+parseInt uses decimal by default, so "010" => 10.
+
+
+I6) Question:
+String s="  hello  ";
+System.out.println(s.trim().toUpperCase());
+
+Answer:
+HELLO
+
+Explanation:
+trim removes spaces; toUpperCase converts to uppercase.
+
+
+I7) Question:
+System.out.println("abc".indexOf('d'));
+
+Answer:
+-1
+
+Explanation:
+If not found, indexOf returns -1.
+
+
+I8) Question:
+System.out.println(Boolean.parseBoolean("yes"));
+
+Answer:
+false
+
+Explanation:
+Only "true" (ignore case) returns true; any other text returns false.
+
+
+I9) Question:
+System.out.println(Math.floor(5.0));
+
+Answer:
+5.0
+
+Explanation:
+floor returns double.
+
+
+I10) Question:
+String s="a,b,,c";
+String[] p=s.split(",", -1);
+System.out.println(p.length);
+
+Answer:
+4
+
+Explanation:
+With -1, split keeps empty tokens. Tokens: "a" "b" "" "c".
+
+
+====================================================
+SECTION J: SMALL CODING TASKS (Solutions)
+====================================================
+
+J1) Question:
+Write a method to check palindrome number.
+
+Answer (Code):
+public class J1_PalindromeNumber {
+    static boolean isPalindrome(int n) {
+        if (n < 0) return false;
+        int original = n, rev = 0;
+        while (n > 0) {
+            int d = n % 10;
+            rev = rev * 10 + d;
+            n /= 10;
+        }
+        return original == rev;
+    }
+}
+
+Explanation:
+Reverse digits using %10 and /10, then compare with original.
+
+
+J2) Question:
+Write a method to check palindrome string ignoring spaces and case.
+
+Answer (Code):
+public class J2_PalindromeString {
+    static boolean isPalindrome(String s) {
+        String clean = s.replaceAll("\\s+", "").toLowerCase();
+        int i = 0, j = clean.length() - 1;
+        while (i < j) {
+            if (clean.charAt(i) != clean.charAt(j)) return false;
+            i++; j--;
+        }
+        return true;
+    }
+}
+
+Explanation:
+Normalize (remove spaces + lowercase) then compare using two pointers.
+
+
+J3) Question:
+Given "101|Amit|25000|true" split it and parse into id(int), name(String), salary(int), active(boolean).
+
+Answer (Code):
+public class J3_SplitAndParse {
+    public static void main(String[] args) {
+        String data = "101|Amit|25000|true";
+        String[] parts = data.split("\\|");
+        int id = Integer.parseInt(parts[0]);
+        String name = parts[1];
+        int salary = Integer.parseInt(parts[2]);
+        boolean active = Boolean.parseBoolean(parts[3]);
+        System.out.println("ID=" + id + ", Name=" + name + ", Salary=" + salary + ", Active=" + active);
+    }
+}
+
+Explanation:
+| is special in regex, so use "\\|" to split correctly. Then parse using wrapper methods.
+
+
+J4) Question:
+Demonstrate constructor overloading with this() chaining.
+
+Answer (Code):
+class Student {
+    int id;
+    String name;
+
+    Student() {
+        this(0, "NA");
+    }
+    Student(int id) {
+        this(id, "NA");
+    }
+    Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+Explanation:
+this(...) calls another constructor and avoids repeated code.
+
+
+J5) Question:
+Demonstrate method overloading with int, double, String.
+
+Answer (Code):
+public class J5_MethodOverload {
+    static void show(int x) { System.out.println("int: " + x); }
+    static void show(double x) { System.out.println("double: " + x); }
+    static void show(String x) { System.out.println("String: " + x); }
+}
+
+Explanation:
+Same method name but different parameters => overloading.
+
+
+J6) Question:
+Write a method to count uppercase and lowercase letters in a string.
+
+Answer (Code):
+public class J6_CountCases {
+    static void count(String s) {
+        int upper = 0, lower = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (Character.isUpperCase(ch)) upper++;
+            else if (Character.isLowerCase(ch)) lower++;
+        }
+        System.out.println("Upper=" + upper + ", Lower=" + lower);
+    }
+}
+
+Explanation:
+Character.isUpperCase and isLowerCase count letters only.
+
+
+J7) Question:
+Write a method to extract domain from email like "user@gmail.com" -> "gmail.com".
+
+Answer (Code):
+public class J7_EmailDomain {
+    static String domain(String email) {
+        int at = email.indexOf('@');
+        if (at == -1 || at == email.length() - 1) return "Invalid";
+        return email.substring(at + 1);
+    }
+}
+
+Explanation:
+Domain is after '@'. Validate presence of '@'.
+
+
+J8) Question:
+Convert String to int using wrapper class and handle exception.
+
+Answer (Code):
+public class J8_ParseIntSafe {
+    static Integer safeParseInt(String s) {
+        try {
+            return Integer.parseInt(s.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+}
+
+Explanation:
+parseInt throws NumberFormatException for invalid strings, so use try-catch.
+
+
+J9) Question:
+Generate random OTP of 6 digits using Math.random().
+
+Answer (Code):
+public class J9_OTP {
+    static int otp6() {
+        return (int)(Math.random() * 900000) + 100000;
+    }
+}
+
+Explanation:
+Math.random gives 0.0 to <1.0. Scale to 0..899999 then add 100000 => 100000..999999.
+
+
+J10) Question:
+Split a long sentence into words and print word count.
+
+Answer (Code):
+public class J10_WordCount {
+    static int wordCount(String s) {
+        String trimmed = s.trim();
+        if (trimmed.isEmpty()) return 0;
+        String[] words = trimmed.split("\\s+");
+        return words.length;
+    }
+}
+
+Explanation:
+trim removes edges; \\s+ handles multiple spaces; count = array length.
+
+
+=====================================================================
+END OF FILE
+=====================================================================
