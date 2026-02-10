@@ -1,0 +1,609 @@
+Java Edge Questions (THIS / SUPER / STATIC / FINAL)
+===================================================
+
+A) THIS keyword (important points)
+----------------------------------
+1) this refers to the current object.
+2) this() calls current class constructor (must be FIRST statement).
+3) this cannot be used inside static context (because static belongs to class, not object).
+
+Predict Output Q1:
+------------------
+class A {
+    int x = 10;
+    void show(int x) {
+        System.out.println(x);
+        System.out.println(this.x);
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        new A().show(99);
+    }
+}
+
+Answer:
+99
+10
+
+Reason: local parameter x hides instance variable x; this.x accesses instance variable.
+
+Predict Output Q2 (this() constructor call):
+-------------------------------------------
+class A {
+    A() {
+        System.out.println("A()");
+    }
+    A(int n) {
+        this();
+        System.out.println("A(int)");
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        new A(5);
+    }
+}
+
+Answer:
+A()
+A(int)
+
+Edge Question:
+--------------
+Can we write this(); in middle of constructor?
+Answer: No. this() must be the FIRST statement in a constructor.
+
+
+B) SUPER keyword (important points)
+-----------------------------------
+1) super refers to parent class object.
+2) super() calls parent constructor (must be FIRST statement in child constructor).
+3) super.variable accesses parent variable when hidden by child.
+4) super.method() calls parent method when overridden in child.
+
+Predict Output Q3 (super with hidden variable):
+----------------------------------------------
+class Parent {
+    int x = 10;
+}
+class Child extends Parent {
+    int x = 20;
+    void print() {
+        System.out.println(x);
+        System.out.println(super.x);
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        new Child().print();
+    }
+}
+
+Answer:
+20
+10
+
+Predict Output Q4 (super.method in overriding):
+----------------------------------------------
+class Parent {
+    void show() { System.out.println("Parent"); }
+}
+class Child extends Parent {
+    void show() {
+        System.out.println("Child");
+        super.show();
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        new Child().show();
+    }
+}
+
+Answer:
+Child
+Parent
+
+Edge Question:
+--------------
+If you don't write super() in child constructor, what happens?
+Answer: Java automatically adds super() as the first line (if parent has no-arg constructor).
+If parent does NOT have no-arg constructor, compile-time error until you call super(args).
+
+
+C) STATIC (important points)
+----------------------------
+1) static belongs to class, not object.
+2) static methods are NOT overridden (they are hidden).
+3) static can be called by ClassName.method().
+4) static block runs once when class is loaded.
+
+Predict Output Q5 (static method hiding):
+----------------------------------------
+class Parent {
+    static void display() { System.out.println("Parent static"); }
+}
+class Child extends Parent {
+    static void display() { System.out.println("Child static"); }
+}
+public class Test {
+    public static void main(String[] args) {
+        Parent p = new Child();
+        p.display();
+        Child.display();
+    }
+}
+
+Answer:
+Parent static
+Child static
+
+Reason: static method call depends on REFERENCE type (Parent), not object type (Child).
+
+Predict Output Q6 (static block order):
+--------------------------------------
+class A {
+    static { System.out.println("A static"); }
+    { System.out.println("A instance"); }
+    A() { System.out.println("A constructor"); }
+}
+public class Test {
+    public static void main(String[] args) {
+        new A();
+        new A();
+    }
+}
+
+Answer:
+A static
+A instance
+A constructor
+A instance
+A constructor
+
+Reason: static runs once; instance block + constructor run for each object.
+
+Edge Question:
+--------------
+Can static method access instance variable directly?
+Answer: No. Need object reference to access instance variable.
+
+
+D) FINAL (important points)
+---------------------------
+1) final variable -> cannot be reassigned.
+2) final method -> cannot be overridden.
+3) final class -> cannot be extended.
+
+Predict Output Q7 (final variable with reference type):
+------------------------------------------------------
+class A {
+    final int[] arr = {1, 2};
+    void change() {
+        arr[0] = 99;
+        // arr = new int[]{5,6}; // error
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        A a = new A();
+        a.change();
+        System.out.println(a.arr[0]);
+    }
+}
+
+Answer:
+99
+
+Reason: final reference cannot point to new array, but internal array elements can change.
+
+Predict Output Q8 (final method overriding attempt):
+---------------------------------------------------
+class Parent {
+    final void show() { System.out.println("Parent"); }
+}
+class Child extends Parent {
+    // void show() { System.out.println("Child"); } // compile-time error
+}
+
+Answer:
+Compile-time error if uncommented: cannot override final method.
+
+Edge Question:
+--------------
+Can a constructor be final?
+Answer: No. Constructors are not inherited, so final doesn't apply.
+
+
+E) MIXED EDGE QUESTIONS (very common in interviews)
+---------------------------------------------------
+
+Predict Output Q9 (static vs instance method polymorphism):
+----------------------------------------------------------
+class Parent {
+    static void s() { System.out.println("Parent static"); }
+    void i() { System.out.println("Parent instance"); }
+}
+class Child extends Parent {
+    static void s() { System.out.println("Child static"); }
+    @Override void i() { System.out.println("Child instance"); }
+}
+public class Test {
+    public static void main(String[] args) {
+        Parent p = new Child();
+        p.s();
+        p.i();
+    }
+}
+
+Answer:
+Parent static
+Child instance
+
+Reason: static resolved by reference type; instance resolved by runtime object.
+
+Predict Output Q10 (super() + this()):
+-------------------------------------
+class A {
+    A() { System.out.println("A()"); }
+}
+class B extends A {
+    B() {
+        // super(); // happens automatically if not written
+        System.out.println("B()");
+    }
+}
+public class Test {
+    public static void main(String[] args) {
+        new B();
+    }
+}
+
+Answer:
+A()
+B()
+
+Reason: parent constructor runs first, then child constructor.
+
+Quick One-Line Answers:
+-----------------------
+1) this used in static method? -> Not allowed.
+2) Can static method be overridden? -> No (method hiding).
+3) Can final method be overridden? -> No.
+4) Can final class be extended? -> No.
+5) super() position in constructor? -> First statement only.
+6) this() position in constructor? -> First statement only.
+
+Practice Tip:
+-------------
+If output prediction is confusing, remember:
+- Instance method overriding => runtime polymorphism (object decides)
+- Static method hiding => compile-time binding (reference decides)
+- final => blocks change/override/extend depending on usage
+===================================================
+
+
+
+JAVA EDGE MCQ (THIS / SUPER / STATIC / FINAL) — With Answer + Explanation
+========================================================================
+
+THIS
+----
+
+Q1) What does `this` refer to in Java?
+A) Parent class object
+B) Current object (current instance)
+C) Class name
+D) JVM
+Correct Answer: B
+Explanation: `this` points to the current object whose method/constructor is executing.
+
+Q2) Where can `this()` be used?
+A) Inside any method at any line
+B) Only inside a constructor and it must be the first statement
+C) Only inside static method
+D) Only inside interface
+Correct Answer: B
+Explanation: `this()` is a constructor call and must be the first statement in a constructor.
+
+Q3) Predict the output:
+-----------------------
+class A {
+  int x = 10;
+  void show(int x) {
+    System.out.println(x);
+    System.out.println(this.x);
+  }
+}
+public class Test {
+  public static void main(String[] args) {
+    new A().show(99);
+  }
+}
+A) 10 then 99
+B) 99 then 10
+C) 10 then 10
+D) 99 then 99
+Correct Answer: B
+Explanation: parameter `x` hides instance variable; `this.x` accesses instance variable.
+
+Q4) Can we use `this` inside a static method?
+A) Yes, always
+B) No
+C) Only if class is final
+D) Only in main method
+Correct Answer: B
+Explanation: static methods have no current object; `this` needs an instance.
+
+
+SUPER
+-----
+
+Q5) `super()` is used to:
+A) Call current class constructor
+B) Call parent class constructor
+C) Call child class constructor
+D) Override a method
+Correct Answer: B
+Explanation: `super()` invokes the immediate parent constructor.
+
+Q6) Predict the output:
+-----------------------
+class P { int x = 10; }
+class C extends P {
+  int x = 20;
+  void print() {
+    System.out.println(x);
+    System.out.println(super.x);
+  }
+}
+public class Test {
+  public static void main(String[] args) {
+    new C().print();
+  }
+}
+A) 10 then 20
+B) 20 then 10
+C) 20 then 20
+D) 10 then 10
+Correct Answer: B
+Explanation: `x` uses child variable (20); `super.x` uses parent variable (10).
+
+Q7) If a parent class has ONLY parameterized constructor and child has no constructor, what happens?
+A) Compiles fine because Java adds super()
+B) Compile-time error
+C) Runtime error
+D) Parent constructor is ignored
+Correct Answer: B
+Explanation: Java tries to insert `super()` automatically, but parent has no no-arg constructor.
+
+Q8) Predict the output:
+-----------------------
+class P {
+  void show() { System.out.println("Parent"); }
+}
+class C extends P {
+  void show() {
+    System.out.println("Child");
+    super.show();
+  }
+}
+public class Test {
+  public static void main(String[] args) {
+    new C().show();
+  }
+}
+A) Parent then Child
+B) Child then Parent
+C) Only Child
+D) Only Parent
+Correct Answer: B
+Explanation: child prints first, then calls parent method using `super.show()`.
+
+
+STATIC
+------
+
+Q9) Static methods are:
+A) Overridden like instance methods (runtime polymorphism)
+B) Hidden (not overridden)
+C) Always private
+D) Always abstract
+Correct Answer: B
+Explanation: static methods use method hiding; call is resolved by reference type at compile-time.
+
+Q10) Predict the output (static method hiding):
+-----------------------------------------------
+class P { static void m(){ System.out.println("P"); } }
+class C extends P { static void m(){ System.out.println("C"); } }
+public class Test {
+  public static void main(String[] args) {
+    P obj = new C();
+    obj.m();
+    C.m();
+  }
+}
+A) C then C
+B) P then C
+C) P then P
+D) C then P
+Correct Answer: B
+Explanation: `obj.m()` uses reference type P => prints P. `C.m()` prints C.
+
+Q11) Predict the output (static block + constructor):
+-----------------------------------------------------
+class A {
+  static { System.out.println("static"); }
+  A(){ System.out.println("constructor"); }
+}
+public class Test {
+  public static void main(String[] args) {
+    new A();
+    new A();
+  }
+}
+A) static constructor constructor
+B) static constructor static constructor
+C) constructor constructor
+D) static static constructor constructor
+Correct Answer: A
+Explanation: static block runs once when class loads; constructor runs for each object.
+
+Q12) Can a static method directly access an instance variable?
+A) Yes
+B) No, need object reference
+C) Only if variable is public
+D) Only if method is final
+Correct Answer: B
+Explanation: instance variable belongs to objects; static belongs to class.
+
+
+FINAL
+-----
+
+Q13) final variable means:
+A) Its value can be changed anytime
+B) It cannot be reassigned after initialization
+C) It must be static
+D) It cannot be printed
+Correct Answer: B
+Explanation: final variable cannot be reassigned (for primitives: value fixed; for references: reference fixed).
+
+Q14) final method means:
+A) Cannot be overloaded
+B) Cannot be overridden
+C) Cannot be called
+D) Must be static
+Correct Answer: B
+Explanation: overriding is blocked; overloading is still possible.
+
+Q15) final class means:
+A) Cannot create objects
+B) Cannot be extended
+C) Cannot contain methods
+D) Cannot have constructors
+Correct Answer: B
+Explanation: final class stops inheritance.
+
+Q16) Predict the output (final reference edge case):
+----------------------------------------------------
+class A {
+  final int[] arr = {1,2};
+  void change(){ arr[0] = 99; }
+}
+public class Test {
+  public static void main(String[] args) {
+    A a = new A();
+    a.change();
+    System.out.println(a.arr[0]);
+  }
+}
+A) 1
+B) 2
+C) 99
+D) Compile-time error
+Correct Answer: C
+Explanation: final reference cannot point to new array, but the array contents can change.
+
+Q17) Can a constructor be final?
+A) Yes
+B) No
+C) Only in abstract class
+D) Only in interface
+Correct Answer: B
+Explanation: constructors are not inherited, so final doesn’t apply.
+
+
+MIXED (MOST IMPORTANT OUTPUT TRAPS)
+-----------------------------------
+
+Q18) Predict output (static + instance together):
+-------------------------------------------------
+class P {
+  static void s(){ System.out.println("P static"); }
+  void i(){ System.out.println("P instance"); }
+}
+class C extends P {
+  static void s(){ System.out.println("C static"); }
+  @Override void i(){ System.out.println("C instance"); }
+}
+public class Test {
+  public static void main(String[] args) {
+    P x = new C();
+    x.s();
+    x.i();
+  }
+}
+A) C static, C instance
+B) P static, P instance
+C) P static, C instance
+D) C static, P instance
+Correct Answer: C
+Explanation: static resolved by reference type (P), instance resolved by object type (C).
+
+Q19) What is TRUE?
+A) Static methods support runtime polymorphism
+B) final method can be overridden
+C) super() must be first statement in constructor
+D) this() can be used inside any method
+Correct Answer: C
+Explanation: super() (and this()) must be the first statement in a constructor.
+
+Q20) Predict output (constructor call order):
+---------------------------------------------
+class A { A(){ System.out.println("A"); } }
+class B extends A { B(){ System.out.println("B"); } }
+public class Test {
+  public static void main(String[] args) {
+    new B();
+  }
+}
+A) B then A
+B) A then B
+C) Only B
+D) Only A
+Correct Answer: B
+Explanation: parent constructor runs first, then child constructor.
+
+Q21) Overloading vs overriding:
+Which statement is correct?
+A) Overloading depends on return type only
+B) Overriding requires same method signature
+C) Static methods can be overridden
+D) final methods can be overridden
+Correct Answer: B
+Explanation: overriding needs same name + parameters; return type must be compatible.
+
+Q22) If a child declares an instance variable with same name as parent:
+A) It overrides the variable
+B) It hides the variable (variable hiding)
+C) It causes runtime error
+D) It is not allowed
+Correct Answer: B
+Explanation: variables are hidden (not polymorphic). Use `super.x` to access parent.
+
+========================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
