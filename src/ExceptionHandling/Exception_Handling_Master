@@ -1,0 +1,2563 @@
+============================================================
+EXCEPTION HANDLING (JAVA) — MASTER NOTES + MCQ + EDGE CASES
+============================================================
+
+SECTION 1) IMPORTANT CONCEPTS (MUST KNOW)
+-----------------------------------------
+
+1) What is an Exception?
+- An exception is an event that disrupts normal program flow.
+- In Java, exceptions are objects (subclasses of Throwable).
+
+2) Throwable Hierarchy (High level)
+- Throwable
+  - Error (serious problems; usually not handled)
+    Examples: OutOfMemoryError, StackOverflowError
+  - Exception
+    - Checked Exceptions (compile-time checked)
+      Examples: IOException, SQLException
+    - RuntimeException (Unchecked Exceptions)
+      Examples: NullPointerException, ArithmeticException, ArrayIndexOutOfBoundsException
+
+3) Checked vs Unchecked
+- Checked: must be handled with try/catch OR declared with throws.
+- Unchecked: not forced by compiler; usually programming bugs or invalid usage.
+
+4) try-catch-finally basics
+- try: code that may throw exception
+- catch: handles a specific exception type
+- finally: executes always (almost always; see edge cases)
+
+5) Multiple catch
+- Order matters: catch more specific first, then more general.
+  Wrong: catch(Exception e) then catch(ArithmeticException e) -> compile error (unreachable).
+
+6) Multi-catch (Java 7+)
+- catch (IOException | SQLException e)
+- You cannot multi-catch exceptions in a parent-child relationship (e.g., Exception | IOException).
+
+7) throw vs throws
+- throw: actually throws an exception object.
+- throws: declares that a method may throw exceptions.
+
+8) Exception propagation
+- If not caught in a method, exception propagates up call stack.
+
+9) finally rules (important)
+- finally runs:
+  - after try completes normally
+  - after catch completes
+  - even if try/catch has return (but finally can override return)
+- finally may NOT run in rare cases:
+  - System.exit(...)
+  - JVM crash
+  - power failure, kill -9, etc.
+
+10) return in try/catch/finally (very important)
+- If try or catch returns, finally still executes.
+- If finally has a return, it overrides previous returns (bad practice).
+
+11) try-with-resources (Java 7+)
+- Automatically closes resources (AutoCloseable/Closeable).
+- Close happens even if exception occurs.
+- If close() throws, it becomes a "suppressed exception".
+
+12) Suppressed exceptions
+- In try-with-resources, if both body throws and close throws:
+  - body exception is primary
+  - close exception is suppressed (accessible via getSuppressed()).
+
+13) Best practices
+- Catch the most specific exception possible.
+- Do not swallow exceptions silently.
+- Use meaningful messages and include cause when rethrowing: new RuntimeException("msg", e)
+- Prefer custom exceptions for domain rules.
+- Avoid return in finally.
+- Avoid using exceptions for normal control flow.
+
+14) Custom exceptions
+- Checked custom: extends Exception
+- Unchecked custom: extends RuntimeException
+
+15) Common interview trick points
+- catch order
+- finally + return
+- try-with-resources + suppressed
+- overriding method throws rules
+- checked exception in lambda/streams
+- errors vs exceptions
+
+SECTION 2) INTERVIEW TOPICS (QUICK NOTES)
+-----------------------------------------
+
+A) Overriding and throws rules
+- Overriding method can:
+  - throw fewer or narrower checked exceptions
+  - throw none
+  - cannot throw broader/new checked exceptions than the parent method
+- For unchecked exceptions: no such restriction.
+
+B) Exception chaining
+- Preserve root cause:
+  throw new MyException("failed", e);
+
+C) When to use checked vs unchecked
+- Checked: recoverable conditions the caller can reasonably handle.
+- Unchecked: programming errors or conditions not usually recoverable.
+
+D) finally vs finalize vs Cleaner
+- finally: block in try/catch
+- finalize(): deprecated; do not use
+- Cleaner/try-with-resources: recommended for resource management
+
+E) Creating good error messages
+- Include context: inputs, ids, state summary
+- Avoid logging same exception multiple times at different layers
+
+F) How to design exceptions in layered applications
+- Low level: throw detailed exceptions
+- Service layer: map to domain exceptions
+- API layer: map to error responses
+
+SECTION 3) EDGE CASES / TRICKY POINTS
+-------------------------------------
+
+1) finally overriding return:
+- If try returns 1 and finally returns 2 -> method returns 2.
+
+2) finally overriding exception:
+- If try throws and finally throws, the finally exception is what you see (original can be lost).
+
+3) catch block never reached:
+- Catching subclass after superclass is compile error.
+
+4) Throwing null:
+- throw null; causes NullPointerException at runtime.
+
+5) Multi-catch variable is effectively final:
+- You cannot assign to 'e' inside multi-catch.
+
+6) Errors are usually not caught
+- You can catch Error, but generally don’t unless you have a very specific reason.
+
+7) try-with-resources closing order
+- Resources close in reverse order of creation.
+
+8) Exception in close() without body exception
+- close exception becomes the thrown exception.
+
+9) catch with no exception thrown
+- Allowed: try block can have code that does not throw; still compiles.
+
+10) Rethrow and type inference (Java 7+)
+- Compiler can infer more specific thrown types in some cases ("more precise rethrow").
+
+SECTION 4) PREDICT THE OUTPUT (IMPORTANT)
+-----------------------------------------
+
+[Predict-1]
+Code:
+try {
+  System.out.print("A");
+} finally {
+  System.out.print("B");
+}
+Output: AB
+
+[Predict-2]
+Code:
+static int f() {
+  try { return 1; }
+  finally { return 2; }
+}
+Output: 2
+
+[Predict-3]
+Code:
+static int f() {
+  try { throw new RuntimeException(); }
+  finally { return 10; }
+}
+Output: 10 (exception is suppressed by return; BAD practice)
+
+[Predict-4]
+Code:
+try {
+  System.out.print("T");
+  int x = 10/0;
+  System.out.print("X");
+} catch (ArithmeticException e) {
+  System.out.print("C");
+} finally {
+  System.out.print("F");
+}
+Output: TCF
+
+[Predict-5]
+Code:
+try {
+  System.out.print("1");
+  throw new Exception();
+} catch (Exception e) {
+  System.out.print("2");
+  throw new RuntimeException();
+} finally {
+  System.out.print("3");
+}
+What prints? 123
+What is thrown? RuntimeException
+
+[Predict-6]
+Code:
+try {
+  throw null;
+} catch (NullPointerException e) {
+  System.out.print("NPE");
+}
+Output: NPE
+
+[Predict-7] (try-with-resources suppressed)
+Assume resource.close() throws CloseEx, and body throws BodyEx.
+Thrown: BodyEx
+Suppressed: CloseEx (via getSuppressed()).
+
+[Predict-8]
+Code:
+try {
+  System.out.print("A");
+  return;
+} finally {
+  System.out.print("F");
+}
+Output: AF
+
+[Predict-9]
+Code:
+try {
+  System.out.print("X");
+} catch (Exception e) {
+  System.out.print("Y");
+} finally {
+  System.out.print("Z");
+}
+Output: XZ
+
+[Predict-10]
+Code:
+try {
+  System.out.print("S");
+  System.exit(0);
+} finally {
+  System.out.print("F");
+}
+Output: S (finally typically will not run)
+
+SECTION 5) MCQ (WITH ANSWERS)
+-----------------------------
+
+1) Which class is the root of exceptions and errors?
+A) Object
+B) Exception
+C) Throwable
+D) Error
+Answer: C
+
+2) Which of the following is a checked exception?
+A) NullPointerException
+B) ArithmeticException
+C) IOException
+D) ArrayIndexOutOfBoundsException
+Answer: C
+
+3) Can we have try without catch?
+A) Yes, always
+B) Yes, with finally
+C) No, never
+D) Yes, only with multi-catch
+Answer: B
+
+4) What happens if finally has a return statement?
+A) It will not compile
+B) Return from try is used
+C) Return from finally overrides
+D) Exception is always thrown
+Answer: C
+
+5) Order of catch blocks should be:
+A) Parent to child
+B) Any order
+C) Child to parent
+D) Alphabetical
+Answer: C
+
+6) Which statement is true?
+A) Errors must be handled using try-catch
+B) Checked exceptions are not checked at compile time
+C) Unchecked exceptions extend RuntimeException
+D) IOException is unchecked
+Answer: C
+
+7) What does 'throws' do?
+A) throws an exception
+B) catches an exception
+C) declares possible exceptions
+D) ignores exceptions
+Answer: C
+
+8) What will 'throw null;' do?
+A) Compile error
+B) Throws NullPointerException at runtime
+C) No effect
+D) Throws IllegalArgumentException
+Answer: B
+
+9) try-with-resources works with:
+A) Runnable
+B) Serializable
+C) AutoCloseable
+D) Cloneable
+Answer: C
+
+10) In try-with-resources, if both body and close throw exceptions:
+A) close exception is primary
+B) body exception is primary, close suppressed
+C) both are lost
+D) compilation fails
+Answer: B
+
+11) Can we catch multiple exceptions in one catch (multi-catch)?
+A) No
+B) Yes, Java 5+
+C) Yes, Java 7+
+D) Yes, only for checked exceptions
+Answer: C
+
+12) Which is NOT recommended?
+A) Catch specific exceptions
+B) Return in finally
+C) Use try-with-resources
+D) Preserve cause while rethrowing
+Answer: B
+
+13) If an exception is not caught, it:
+A) is ignored
+B) is logged automatically
+C) propagates up call stack
+D) converts to Error
+Answer: C
+
+14) Can an overriding method throw broader checked exceptions?
+A) Yes
+B) No
+C) Only with finally
+D) Only for RuntimeException
+Answer: B
+
+15) What is the purpose of exception chaining?
+A) To hide exception
+B) To improve performance
+C) To preserve root cause
+D) To avoid try-catch
+Answer: C
+
+16) Which of these is an Error?
+A) IOException
+B) OutOfMemoryError
+C) RuntimeException
+D) SQLException
+Answer: B
+
+17) Can we have multiple finally blocks for one try?
+A) Yes
+B) No
+C) Yes, if nested
+D) Only with catch
+Answer: B
+
+18) Which is true about finally?
+A) It always executes in all situations
+B) It never executes if exception occurs
+C) It generally executes except System.exit/JVM crash etc.
+D) It executes only when exception occurs
+Answer: C
+
+19) What happens if catch block throws another exception and finally also throws?
+A) catch exception is thrown
+B) finally exception is thrown
+C) both are thrown together
+D) none are thrown
+Answer: B
+
+20) Which is best practice?
+A) catch(Exception e) everywhere
+B) swallow exceptions
+C) log and rethrow with context
+D) use exceptions for loops
+Answer: C
+
+SECTION 6) ADVANCED / EDGE MCQ (TRICK QUESTIONS)
+------------------------------------------------
+
+1) Which catch is unreachable?
+try { } catch (Exception e) { } catch (RuntimeException e) { }
+A) first
+B) second
+C) none
+D) both
+Answer: B (RuntimeException is subclass of Exception; second unreachable)
+
+2) Multi-catch limitation:
+catch (Exception | IOException e)
+A) Valid
+B) Invalid (parent-child in multi-catch)
+Answer: B
+
+3) What is printed?
+try { System.out.print("A"); int x=1/0; }
+catch (ArithmeticException e){ System.out.print("B"); }
+finally { System.out.print("C"); }
+A) AC
+B) ABC
+C) BC
+D) A
+Answer: B
+
+4) What happens?
+try { return; } finally { throw new RuntimeException(); }
+A) returns normally
+B) compile error
+C) throws RuntimeException
+D) ignored
+Answer: C
+
+5) try-with-resources closing order is:
+A) same order
+B) reverse order
+Answer: B
+
+SECTION 7) SHORT INTERVIEW Q&A (READY TO SPEAK)
+-----------------------------------------------
+
+1) Q: Difference between throw and throws?
+   A: throw is used to explicitly throw an exception object; throws is used in method signature to declare potential exceptions.
+
+2) Q: Difference between final, finally, finalize?
+   A: final is keyword (constant, prevent override/inherit), finally is block for cleanup, finalize is deprecated method for GC cleanup (avoid).
+
+3) Q: Why catch order matters?
+   A: Because more general exceptions would catch everything and make specific catches unreachable.
+
+4) Q: What is try-with-resources?
+   A: Feature that auto-closes resources implementing AutoCloseable; handles suppressed exceptions.
+
+5) Q: When finally may not execute?
+   A: System.exit, JVM crash, kill process, power failure.
+
+6) Q: What are suppressed exceptions?
+   A: Exceptions thrown during resource closing that are attached to the primary exception from try block.
+
+7) Q: Checked vs unchecked?
+   A: Checked must be handled/declared; unchecked are RuntimeException and its subclasses.
+
+8) Q: Can we catch Error?
+   A: Yes technically, but usually should not; indicates serious JVM problems.
+
+SECTION 8) MINI PRACTICE (EDGE QUESTIONS)
+-----------------------------------------
+
+Edge-Q1) Why is "return in finally" discouraged?
+- It hides original return value or exception and makes debugging hard.
+
+Edge-Q2) What happens if you do: throw new Exception(); inside finally?
+- It overrides any exception from try/catch, making original exception lost unless you manually handle it.
+
+Edge-Q3) How do you preserve original exception when throwing new one?
+- Use chaining: throw new RuntimeException("context", originalException);
+
+Edge-Q4) In try-with-resources, how to inspect suppressed exceptions?
+- Throwable t; t.getSuppressed()
+
+============================================================
+END OF FILE
+============================================================
+
+============================================================
+APPENDIX F — FULL QUESTION + ANSWER + EXPLANATION (COMPLETE SET)
+(OBJECTIVE/MCQ + PREDICT + EDGE/TRICK)
+Copy-Paste and APPEND into the SAME Exception_Handling_Master.txt file.
+============================================================
+
+GUIDELINES (How to use)
+- For MCQ: Read Question → Options → Check Answer → Read Explanation.
+- For Predict: Run mentally line-by-line; remember: exception jumps + finally runs + return-in-finally overrides.
+- For Edge/Trick: These are common interview traps.
+
+============================================================
+F1) OBJECTIVE / MCQ — INTERMEDIATE (50)
+Format: Question → Options → Answer → Explanation
+============================================================
+
+[INT-MCQ-1] Checked exceptions are:
+A) Subclasses of Error
+B) Forced by compiler to be caught or declared
+C) Never thrown at runtime
+D) Always programming bugs
+Answer: B
+Explanation: Checked exceptions must be handled (try/catch) or declared (throws). They can still occur at runtime;
+they are not Errors and not always bugs.
+
+[INT-MCQ-2] RuntimeException is:
+A) Must be declared with throws
+B) Must be caught
+C) Not required to be declared or caught
+D) Cannot be subclassed
+Answer: C
+Explanation: RuntimeException and its subclasses are unchecked; compiler does not force handling/declaration.
+
+[INT-MCQ-3] What happens if you catch Exception before IOException (both present)?
+A) Works fine
+B) Compile-time error: unreachable catch
+C) Runtime error only
+D) IOException catch runs first
+Answer: B
+Explanation: Exception is broader; it would catch IOException too, making IOException catch unreachable.
+
+[INT-MCQ-4] Main purpose of finally:
+A) Handle exceptions
+B) Create custom exception
+C) Run cleanup regardless of exception (generally)
+D) Stop propagation always
+Answer: C
+Explanation: finally is intended for cleanup (close resources, release locks). It doesn’t “handle” exceptions like catch.
+
+[INT-MCQ-5] `throw new IllegalArgumentException()`:
+A) Declares an exception
+B) Actually throws exception now
+C) Catches exception
+D) Converts checked to unchecked automatically
+Answer: B
+Explanation: `throw` triggers exception immediately at runtime.
+
+[INT-MCQ-6] `throws` in method signature:
+A) Throws exception automatically
+B) Declares possible exceptions for caller to handle/declare
+C) Prevents exceptions
+D) Only works for RuntimeException
+Answer: B
+Explanation: It’s a contract: “caller must be aware of this checked exception”.
+
+[INT-MCQ-7] Valid multi-catch is:
+A) catch (Exception | IOException e)
+B) catch (IOException | SQLException e)
+C) catch (RuntimeException | NullPointerException e)
+D) catch (Throwable | Exception e)
+Answer: B
+Explanation: Multi-catch cannot include parent-child pairs. B is valid because types are unrelated.
+
+[INT-MCQ-8] In multi-catch, variable `e` is:
+A) Reassignable
+B) Effectively final
+C) Must be static
+D) Must be public
+Answer: B
+Explanation: Java prevents reassigning the catch parameter in multi-catch to keep type safety.
+
+[INT-MCQ-9] Best fit for checked exception:
+A) NullPointer bug
+B) File missing while reading config
+C) Array index bug
+D) Divide by zero bug
+Answer: B
+Explanation: File missing is external/recoverable; checked exceptions often model recoverable conditions.
+
+[INT-MCQ-10] Best practice when rethrowing:
+A) throw new RuntimeException();
+B) throw new RuntimeException("failed");
+C) throw new RuntimeException("failed", e);
+D) ignore original exception
+Answer: C
+Explanation: Preserve cause to keep stack trace and root reason.
+
+[INT-MCQ-11] Exception propagation means:
+A) Converting Error to Exception
+B) Passing exception up call stack when not handled
+C) Auto-logging exception
+D) Always suppress exception
+Answer: B
+Explanation: Unhandled exceptions move upward to caller methods.
+
+[INT-MCQ-12] `catch (Throwable t)` catches:
+A) Only checked exceptions
+B) Errors and Exceptions
+C) Only RuntimeException
+D) Illegal in Java
+Answer: B
+Explanation: Throwable is the top parent of both Error and Exception.
+
+[INT-MCQ-13] Statement about Error:
+A) Always safe to catch and continue
+B) Usually serious JVM problems
+C) Always checked
+D) Same as Exception
+Answer: B
+Explanation: Errors (OOME, StackOverflowError) often indicate unrecoverable states.
+
+[INT-MCQ-14] If exception is not caught:
+A) Program continues normally
+B) JVM ignores it
+C) It propagates; may terminate thread/program
+D) It becomes compile-time error at runtime
+Answer: C
+Explanation: Uncaught exceptions generally terminate the current thread.
+
+[INT-MCQ-15] NOT recommended:
+A) Catch specific exceptions
+B) Use exceptions for normal control flow
+C) Use try-with-resources
+D) Add context when wrapping
+Answer: B
+Explanation: Exceptions are expensive and reduce readability if used as normal branching.
+
+[INT-MCQ-16] try-with-resources requires:
+A) Serializable
+B) AutoCloseable / Closeable
+C) Runnable
+D) Comparable
+Answer: B
+Explanation: Resources must implement AutoCloseable to be auto-closed.
+
+[INT-MCQ-17] try-with-resources close order (2 resources):
+A) Same order as created
+B) Reverse order
+C) Random
+D) Alphabetical
+Answer: B
+Explanation: LIFO close prevents dependency issues between resources.
+
+[INT-MCQ-18] If body and close() both throw in try-with-resources:
+A) close exception is primary
+B) body exception primary; close suppressed
+C) both thrown separately
+D) compile error
+Answer: B
+Explanation: Java preserves main failure and attaches close failures as suppressed.
+
+[INT-MCQ-19] Where can you use try-with-resources?
+A) Only in main
+B) Anywhere a try statement is allowed
+C) Only with checked exceptions
+D) Only with files
+Answer: B
+Explanation: It’s a language feature for any AutoCloseable resource.
+
+[INT-MCQ-20] Which compiles?
+A) try { } catch (IOException e) { }
+B) try { } finally { }
+C) try { } catch { }
+D) try finally { }
+Answer: B
+Explanation: try must be followed by catch and/or finally. “catch { }” is invalid syntax.
+
+[INT-MCQ-21] try without catch and without finally:
+A) Allowed
+B) Not allowed
+Answer: B
+Explanation: Java requires at least one catch or finally.
+
+[INT-MCQ-22] printStackTrace() prints:
+A) Only message
+B) Only error code
+C) Stack trace to stderr
+D) Nothing in IDE
+Answer: C
+Explanation: It prints exception class, message, and call stack (to standard error).
+
+[INT-MCQ-23] Exception class:
+A) Extends Error
+B) Extends Throwable
+C) Is interface
+D) Is final
+Answer: B
+Explanation: Exception is under Throwable.
+
+[INT-MCQ-24] Exception chaining is used to:
+A) Remove stack trace
+B) Preserve root cause
+C) Speed execution
+D) Avoid try-catch
+Answer: B
+Explanation: Without chaining, you may lose original failure context.
+
+[INT-MCQ-25] Correct chaining constructor:
+A) new RuntimeException(e, "msg")
+B) new RuntimeException("msg", e)
+C) new RuntimeException()
+D) new RuntimeException(e) only always exists
+Answer: B
+Explanation: Standard pattern: (message, cause).
+
+[INT-MCQ-26] Swallowing exception means:
+A) Rethrow after logging
+B) Catch and do nothing/ignore
+C) Using finally
+D) Throwing Error
+Answer: B
+Explanation: Swallowing hides failures and causes silent bugs.
+
+[INT-MCQ-27] finally:
+A) Never runs on return
+B) Runs even on return (generally)
+C) Runs only on exception
+D) Runs only when no exception
+Answer: B
+Explanation: finally executes after try/catch even if return occurs (except System.exit/JVM crash).
+
+[INT-MCQ-28] Common bug:
+A) Specific catch first
+B) return in finally
+C) try-with-resources
+D) chaining causes
+Answer: B
+Explanation: return in finally overrides real result/exception.
+
+[INT-MCQ-29] Throw checked exception without declaring:
+A) Always allowed
+B) Not allowed unless caught or declared
+C) Allowed only in main
+D) Allowed only in finally
+Answer: B
+Explanation: Compiler enforces checked exception handling.
+
+[INT-MCQ-30] Custom exceptions:
+A) Must extend Error
+B) Can extend Exception or RuntimeException depending on design
+C) Cannot have constructors
+D) Must be final
+Answer: B
+Explanation: Choose checked vs unchecked based on “recoverable vs programmer error” style.
+
+[INT-MCQ-31] `throw null;` results in:
+A) Compile error
+B) NullPointerException at runtime
+C) IllegalArgumentException
+D) returns null
+Answer: B
+Explanation: JVM throws NPE because you tried to throw a null reference.
+
+[INT-MCQ-32] If exception not caught in a thread:
+A) JVM ignores it
+B) Thread terminates; default handler prints stack trace
+C) Thread restarts
+D) Becomes checked exception
+Answer: B
+Explanation: Uncaught exceptions typically terminate the thread.
+
+[INT-MCQ-33] Method to get cause:
+A) getReason()
+B) getCause()
+C) cause()
+D) getMessageCause()
+Answer: B
+Explanation: getCause returns chained cause.
+
+[INT-MCQ-34] `catch (Exception e)`:
+A) Catches Errors too
+B) Catches Exceptions but not Errors
+C) Catches only checked exceptions
+D) Catches only RuntimeException
+Answer: B
+Explanation: Error is not an Exception; it is separate under Throwable.
+
+[INT-MCQ-35] NOT caught by `catch(Exception e)`:
+A) NullPointerException
+B) IOException
+C) OutOfMemoryError
+D) IllegalArgumentException
+Answer: C
+Explanation: OutOfMemoryError is an Error, not an Exception.
+
+[INT-MCQ-36] finally may not execute when:
+A) never executes
+B) always executes
+C) System.exit or JVM crash/kill
+D) only checked exceptions occur
+Answer: C
+Explanation: System.exit terminates JVM; OS kill/power-off also bypass finally.
+
+[INT-MCQ-37] Common finally use:
+A) parsing JSON
+B) closing resources (if not try-with-resources)
+C) creating threads
+D) sorting arrays
+Answer: B
+Explanation: Cleanup belongs in finally.
+
+[INT-MCQ-38] int division by zero throws:
+A) NullPointerException
+B) ArithmeticException
+C) IOException
+D) ClassNotFoundException
+Answer: B
+Explanation: 10/0 for int triggers ArithmeticException.
+
+[INT-MCQ-39] Invalid array index throws:
+A) IndexOutOfBoundsException
+B) ArrayIndexOutOfBoundsException
+C) IOException
+D) SQLException
+Answer: B
+Explanation: Arrays throw ArrayIndexOutOfBoundsException (subclass of IndexOutOfBoundsException).
+
+[INT-MCQ-40] Best place to validate arguments:
+A) finally
+B) start of method (fail fast)
+C) catch only
+D) after returning
+Answer: B
+Explanation: Fail early prevents deep failures and clearer errors.
+
+[INT-MCQ-41] Fail-fast means:
+A) ignore quickly
+B) detect invalid state early and throw early
+C) sleep and retry
+D) return null always
+Answer: B
+Explanation: Quick, clear failures reduce debugging time.
+
+[INT-MCQ-42] Best exception for invalid arguments:
+A) IOException
+B) IllegalArgumentException
+C) SQLException
+D) InterruptedException
+Answer: B
+Explanation: Standard Java choice for bad parameters.
+
+[INT-MCQ-43] Stack trace shows:
+A) call sequence leading to exception
+B) only first line
+C) always empty
+D) cannot be logged
+Answer: A
+Explanation: It is the call chain to the throw point.
+
+[INT-MCQ-44] getMessage() returns:
+A) full stack trace
+B) message string (may be null)
+C) cause
+D) type only
+Answer: B
+Explanation: It returns message passed to constructor, can be null.
+
+[INT-MCQ-45] Good service-layer catch practice:
+A) return null
+B) add context and rethrow/translate
+C) ignore and continue
+D) catch Throwable everywhere
+Answer: B
+Explanation: Preserve cause + map to domain exceptions.
+
+[INT-MCQ-46] Catching Throwable broadly:
+A) always improves correctness
+B) can hide serious errors and complicate debugging
+C) required by compiler
+D) increases performance
+Answer: B
+Explanation: It catches Errors too and may continue in unsafe state.
+
+[INT-MCQ-47] `try { } catch { }` is:
+A) valid since Java 8
+B) invalid syntax
+C) valid since Java 11
+D) valid only with multi-catch
+Answer: B
+Explanation: Catch must specify type and variable.
+
+[INT-MCQ-48] `throw` can throw:
+A) only checked
+B) any Throwable subtype
+C) only inside catch
+D) declares exception
+Answer: B
+Explanation: throw works with Exception/RuntimeException/Error.
+
+[INT-MCQ-49] Best to avoid resource leaks:
+A) finalize()
+B) try-with-resources
+C) System.gc()
+D) Thread.sleep()
+Answer: B
+Explanation: Deterministic resource management.
+
+[INT-MCQ-50] Invalid integer parsing throws:
+A) NumberFormatException
+B) IOException
+C) ArithmeticException
+D) SQLException
+Answer: A
+Explanation: parseInt on non-number throws NumberFormatException.
+
+============================================================
+F2) PREDICT — INTERMEDIATE (20)
+Format: Question → Answer → Explanation
+============================================================
+
+[INT-PREDICT-1] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  int x = 10 / 2;
+  System.out.print("B");
+} catch (ArithmeticException e) {
+  System.out.print("C");
+} finally {
+  System.out.print("D");
+}
+Answer: Output = ABD
+Explanation: No exception; prints A then B; finally prints D.
+
+[INT-PREDICT-2] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  int x = 10 / 0;
+  System.out.print("B");
+} catch (RuntimeException e) {
+  System.out.print("C");
+} finally {
+  System.out.print("D");
+}
+Answer: Output = ACD
+Explanation: Division by zero throws ArithmeticException (a RuntimeException), caught; finally prints D.
+
+[INT-PREDICT-3] (QUESTION)
+Code:
+try {
+  System.out.print("1");
+  throw new RuntimeException("X");
+} catch (Exception e) {
+  System.out.print("2");
+} finally {
+  System.out.print("3");
+}
+Answer: Output = 123
+Explanation: Throw jumps to catch (prints 2); finally prints 3.
+
+[INT-PREDICT-4] (QUESTION)
+Code:
+static int g() {
+  try { return 5; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; return value = 5
+Explanation: Return value decided, then finally runs, then method returns 5.
+
+[INT-PREDICT-5] (QUESTION)
+Code:
+static int g() {
+  try { return 5; }
+  finally { System.out.print("F"); return 7; }
+}
+Answer: Output = F ; return value = 7
+Explanation: Return in finally overrides try return.
+
+[INT-PREDICT-6] (QUESTION)
+Code:
+try {
+  System.out.print("T");
+  throw null;
+} catch (NullPointerException e) {
+  System.out.print("N");
+} finally {
+  System.out.print("F");
+}
+Answer: Output = TNF
+Explanation: throw null causes NPE; caught; finally prints F.
+
+[INT-PREDICT-7] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+} catch (Exception e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = AC
+Explanation: No exception, so catch skipped; finally executes.
+
+[INT-PREDICT-8] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new IllegalStateException();
+} catch (IllegalArgumentException e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = AC ; thrown = IllegalStateException
+Explanation: No matching catch; finally still runs; exception propagates after finally.
+
+[INT-PREDICT-9] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new IllegalArgumentException();
+} catch (IllegalArgumentException e) {
+  System.out.print("B");
+  throw e;
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC ; thrown = IllegalArgumentException
+Explanation: Exception caught, then rethrown; finally executes even after rethrow.
+
+[INT-PREDICT-10] (QUESTION)
+Code:
+static void h() {
+  try { throw new RuntimeException("R"); }
+  catch (RuntimeException e) { System.out.print("C"); }
+  finally { System.out.print("F"); }
+}
+Answer: Output = CF
+Explanation: Catch prints C, finally prints F.
+
+[INT-PREDICT-11] (QUESTION)
+Code:
+static void h() {
+  try { System.out.print("A"); return; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = AF
+Explanation: finally runs even when return occurs.
+
+[INT-PREDICT-12] (QUESTION)
+Code:
+static void h() {
+  try { System.out.print("A"); }
+  finally { System.out.print("F"); throw new RuntimeException(); }
+}
+Answer: Output = AF ; thrown = RuntimeException
+Explanation: finally throws after printing F.
+
+[INT-PREDICT-13] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  int[] a = new int[1];
+  System.out.print(a[1]);
+} catch (ArrayIndexOutOfBoundsException e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: a[1] throws; catch prints B; finally prints C.
+
+[INT-PREDICT-14] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  String s = null;
+  System.out.print(s.length());
+} catch (NullPointerException e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: NPE caught; finally runs.
+
+[INT-PREDICT-15] (QUESTION)
+Code:
+static int m() {
+  try { throw new RuntimeException(); }
+  catch (RuntimeException e) { return 1; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; return = 1
+Explanation: catch returns 1; finally prints F.
+
+[INT-PREDICT-16] (QUESTION)
+Code:
+static int m() {
+  try { return 1; }
+  catch (RuntimeException e) { return 2; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; return = 1
+Explanation: try returns normally; finally still prints.
+
+[INT-PREDICT-17] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  if (true) throw new Exception();
+  System.out.print("B");
+} catch (Exception e) {
+  System.out.print("C");
+}
+Answer: Output = AC
+Explanation: After throw, code after it in try is skipped.
+
+[INT-PREDICT-18] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new Exception();
+} catch (Exception e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: catch prints B; finally prints C.
+
+[INT-PREDICT-19] (QUESTION)
+Code:
+static void z() {
+  try { throw new RuntimeException("X"); }
+  catch (RuntimeException e) { System.out.print(e.getMessage()); }
+}
+Answer: Output = X
+Explanation: Message is "X".
+
+[INT-PREDICT-20] (QUESTION)
+Code:
+static void z() {
+  try { throw new RuntimeException(); }
+  catch (RuntimeException e) { System.out.print(e.getMessage()); }
+}
+Answer: Output = null
+Explanation: Default constructor has no message → getMessage() is null.
+
+============================================================
+F3) EDGE / TRICK QUESTIONS — INTERMEDIATE (20)
+(These are “edge cases” + interview traps)
+Format: Question → Answer → Explanation
+============================================================
+
+[INT-EDGE-1]
+Question: What happens if `finally` has `return` but try throws exception?
+Answer: Method returns from finally; exception is lost.
+Explanation: `return` in finally overrides both return and throw from try/catch.
+
+[INT-EDGE-2]
+Question: Does finally always run?
+Answer: Generally yes; but not if JVM exits (System.exit), JVM crash, kill -9, power failure.
+Explanation: finally is a language guarantee under normal execution, not against OS/JVM termination.
+
+[INT-EDGE-3]
+Question: Is `catch (Exception e)` always a good idea?
+Answer: No.
+Explanation: It hides bugs (like NullPointerException) and makes it hard to react differently to different failures.
+
+[INT-EDGE-4]
+Question: What does `throw null;` do?
+Answer: Throws NullPointerException at runtime.
+Explanation: You’re “throwing” a null reference; JVM converts it to NPE.
+
+[INT-EDGE-5]
+Question: If catch block throws X and finally throws Y, what is observed?
+Answer: Y (finally exception).
+Explanation: finally overrides what was thrown earlier.
+
+[INT-EDGE-6]
+Question: Why is catch order important?
+Answer: If you catch parent first, child catches become unreachable (compile error).
+Explanation: Compiler prevents unreachable code.
+
+[INT-EDGE-7]
+Question: What is “swallowing exception” and why bad?
+Answer: Catch and ignore.
+Explanation: Program continues in broken state; debugging becomes difficult.
+
+[INT-EDGE-8]
+Question: Best way to close resources?
+Answer: try-with-resources.
+Explanation: It handles normal + exceptional paths and suppressed exceptions.
+
+[INT-EDGE-9]
+Question: In try-with-resources, where are close exceptions stored if body already failed?
+Answer: Suppressed exceptions on the primary exception.
+Explanation: Use getSuppressed() to see them.
+
+[INT-EDGE-10]
+Question: Can we catch Error?
+Answer: Yes, but usually avoid except at top boundary for logging/shutdown.
+Explanation: Errors may indicate unrecoverable JVM issues.
+
+[INT-EDGE-11]
+Question: Is `throws RuntimeException` needed?
+Answer: Not required.
+Explanation: Unchecked exceptions are not forced to be declared.
+
+[INT-EDGE-12]
+Question: If you wrap exception without cause, what do you lose?
+Answer: Original stack trace/root cause.
+Explanation: You only see new throw location, not original failure point.
+
+[INT-EDGE-13]
+Question: What is exception translation?
+Answer: Converting low-level exception to domain exception while preserving cause.
+Explanation: Keeps layers clean and consistent.
+
+[INT-EDGE-14]
+Question: Best exception for invalid method argument?
+Answer: IllegalArgumentException.
+Explanation: Standard Java API practice.
+
+[INT-EDGE-15]
+Question: Best practice for InterruptedException if you can’t throw it further?
+Answer: Thread.currentThread().interrupt();
+Explanation: Restores interrupt status so higher-level code can detect cancellation.
+
+[INT-EDGE-16]
+Question: What is fail-fast?
+Answer: Validate early and throw early.
+Explanation: Prevents deeper, confusing failures later.
+
+[INT-EDGE-17]
+Question: Can finally change returned primitive value?
+Answer: No (unless finally itself returns).
+Explanation: Return value is computed before finally; changing locals doesn’t change returned primitive.
+
+[INT-EDGE-18]
+Question: Can finally mutate returned object?
+Answer: Yes.
+Explanation: If you return a reference (e.g., StringBuilder), finally can modify that object.
+
+[INT-EDGE-19]
+Question: Is it OK to use exceptions inside loops for normal logic?
+Answer: No.
+Explanation: Performance + readability suffer; use conditions.
+
+[INT-EDGE-20]
+Question: Multi-catch with parent-child allowed?
+Answer: No.
+Explanation: `catch (Exception | IOException e)` is illegal because IOException is a child of Exception.
+
+============================================================
+F4) OBJECTIVE / MCQ — ADVANCED (100)
+Format: Question → Options → Answer → Explanation (concise)
+============================================================
+
+[ADV-MCQ-1] Suppressed exceptions are:
+A) Only in catch blocks
+B) Attached to primary exception (often close failures in try-with-resources)
+C) Replace primary exception
+D) Java 25 only
+Answer: B
+Explanation: try-with-resources stores close failures as suppressed on primary.
+
+[ADV-MCQ-2] API for suppressed exceptions:
+A) getHidden()
+B) getSuppressed()
+C) suppressed()
+D) listSuppressed()
+Answer: B
+Explanation: Throwable#getSuppressed() returns them.
+
+[ADV-MCQ-3] If only close() throws in try-with-resources:
+A) Nothing thrown
+B) close() exception thrown
+C) It becomes suppressed on null
+D) Compile error
+Answer: B
+Explanation: With no primary exception, close failure becomes the thrown exception.
+
+[ADV-MCQ-4] `finally { return ... }` effect:
+A) Exception always wins
+B) Return overrides exception/return
+C) Both propagate
+D) Compile error
+Answer: B
+Explanation: Return in finally dominates.
+
+[ADV-MCQ-5] `catch(Exception e){ throw e; }` inside method `throws IOException`:
+A) Always allowed
+B) Allowed only at runtime
+C) Compile error: e is too broad (Exception)
+D) Auto-narrows to IOException
+Answer: C
+Explanation: Compiler sees e as Exception; method signature too narrow.
+
+[ADV-MCQ-6] More precise rethrow helps when:
+A) Compiler infers narrower thrown type after catch
+B) Throw null
+C) Catch Throwable
+D) Use finally
+Answer: A
+Explanation: Java 7+ can infer narrower types in certain patterns.
+
+[ADV-MCQ-7] Which ordering compiles?
+A) catch(Exception) then catch(RuntimeException)
+B) catch(RuntimeException) then catch(Exception)
+C) catch(Throwable) then catch(Exception)
+D) catch(Throwable) last always required
+Answer: B
+Explanation: Specific before general.
+
+[ADV-MCQ-8] `catch(IOException | FileNotFoundException e)`:
+A) Valid
+B) Invalid (parent-child)
+C) Java 25 only valid
+D) Valid only if e is final
+Answer: B
+Explanation: FileNotFoundException is a subclass of IOException.
+
+[ADV-MCQ-9] Exception translation:
+A) Convert exception to Error
+B) Convert low-level to domain exception preserving cause
+C) Remove stack trace
+D) Use finally return
+Answer: B
+Explanation: Layering best practice.
+
+[ADV-MCQ-10] Library method: not found case best:
+A) Always return null
+B) Always throw Error
+C) Optional/empty if expected; exception if truly exceptional
+D) Always printStackTrace
+Answer: C
+Explanation: Design depends on whether absence is expected.
+
+[ADV-MCQ-11] Exceptions cost:
+A) Free
+B) Expensive (stack trace); avoid as normal flow
+C) No allocation
+D) JVM disables stack traces
+Answer: B
+Explanation: Capturing stack trace has overhead.
+
+[ADV-MCQ-12] Frequent failure path should use:
+A) Throw exception each time
+B) Normal branching/return result
+C) catch Throwable always
+D) return in finally
+Answer: B
+Explanation: Expected conditions should not be exceptions.
+
+[ADV-MCQ-13] InterruptedException handling:
+A) Ignore
+B) Wrap and continue always
+C) Re-interrupt if you can’t propagate
+D) Convert to Error
+Answer: C
+Explanation: Preserve interrupt status for cancellation.
+
+[ADV-MCQ-14] Swallowing interrupts can:
+A) Improve correctness
+B) Break cancellation protocols
+C) No effect
+D) Compile error
+Answer: B
+Explanation: The program may keep running when it should stop.
+
+[ADV-MCQ-15] ExecutorService task exceptions observed via:
+A) System.out
+B) Future.get() (ExecutionException wraps)
+C) finalize
+D) reflection
+Answer: B
+Explanation: Exceptions are stored in Future.
+
+[ADV-MCQ-16] Future.get wraps task exception in:
+A) IOException
+B) ExecutionException
+C) CompletionException only
+D) ClassCastException
+Answer: B
+Explanation: ExecutionException is standard wrapper.
+
+[ADV-MCQ-17] CompletableFuture wraps async exceptions in:
+A) ExecutionException only
+B) CompletionException
+C) IOException
+D) IllegalMonitorStateException
+Answer: B
+Explanation: CompletionException commonly wraps in CF pipeline.
+
+[ADV-MCQ-18] About catching Error in production:
+A) Always catch and continue
+B) Usually let propagate; may leave system inconsistent
+C) Convert to checked
+D) Ignore silently
+Answer: B
+Explanation: Many Errors indicate JVM instability.
+
+[ADV-MCQ-19] Acceptable to catch Error:
+A) Always
+B) Never
+C) Rarely, at top-level boundary for logging/shutdown
+D) Only Java 8
+Answer: C
+Explanation: Best as last-resort boundary handling.
+
+[ADV-MCQ-20] Fail-fast vs fail-safe:
+A) Same
+B) Fail-fast throws early; fail-safe degrades safely
+C) Fail-safe means crash
+D) Fail-fast means ignore
+Answer: B
+Explanation: Two different strategies.
+
+[ADV-MCQ-21] Anti-pattern:
+A) Correlation id in logs
+B) Throwing exceptions for expected flow (like not-found lookups)
+C) try-with-resources
+D) custom exceptions
+Answer: B
+Explanation: Exceptions should represent exceptional conditions.
+
+[ADV-MCQ-22] Too many custom checked exceptions:
+A) Always best
+B) Makes APIs noisy; choose wisely
+C) Compiler ignores
+D) Java 25 only
+Answer: B
+Explanation: Overuse creates boilerplate.
+
+[ADV-MCQ-23] Best logging strategy:
+A) Log everywhere
+B) Log at boundaries; add context and rethrow inside
+C) Never log
+D) printStackTrace always
+Answer: B
+Explanation: Avoid duplicates, keep full trace once.
+
+[ADV-MCQ-24] Better than printStackTrace:
+A) ignore
+B) logger.error("msg", e)
+C) System.out.println(e)
+D) return -1
+Answer: B
+Explanation: Structured logging integrates with systems.
+
+[ADV-MCQ-25] If catch throws and finally throws:
+A) catch exception seen
+B) finally exception seen
+C) both seen as two throws
+D) none
+Answer: B
+Explanation: finally overrides.
+
+[ADV-MCQ-26] Exception messages should:
+A) replace stack trace
+B) include context but avoid secrets
+C) be empty
+D) include full request always
+Answer: B
+Explanation: Security and usefulness.
+
+[ADV-MCQ-27] Helpful NPE messages (Java 14+):
+A) suppressed exceptions
+B) improved NPE detail
+C) finalize
+D) JVM ignores NPE
+Answer: B
+Explanation: JVM can show which reference was null.
+
+[ADV-MCQ-28] Fail-fast non-null:
+A) sleep
+B) Objects.requireNonNull(arg,"msg")
+C) finalize
+D) catch Throwable
+Answer: B
+Explanation: Standard null validation.
+
+[ADV-MCQ-29] Wrap exception without cause:
+A) Cause preserved automatically
+B) Cause may be lost
+C) JVM always adds cause
+D) compile error
+Answer: B
+Explanation: Without chaining, you lose root cause stack trace.
+
+[ADV-MCQ-30] Correct wrapping:
+A) new RuntimeException().setCause(e)
+B) new RuntimeException("msg", e)
+C) new RuntimeException().initCause("x")
+D) new RuntimeException("msg")
+Answer: B
+Explanation: Use (message, cause).
+
+[ADV-MCQ-31] initCause:
+A) can change cause multiple times
+B) can set once if not already set
+C) only for Error
+D) deprecated since Java 8
+Answer: B
+Explanation: Cause is immutable once set.
+
+[ADV-MCQ-32] try-with-resources requires:
+A) AutoCloseable
+B) Iterable
+C) Supplier
+D) Stream
+Answer: A
+Explanation: Core contract.
+
+[ADV-MCQ-33] If close() throws checked exception, close() must:
+A) declare nothing
+B) declare throws that exception
+C) throw only RuntimeException
+D) throw Error
+Answer: B
+Explanation: Checked exceptions must be declared.
+
+[ADV-MCQ-34] Overriding + checked exceptions:
+A) can throw broader checked
+B) cannot broaden checked beyond parent signature
+C) must throw same always
+D) must throw Exception
+Answer: B
+Explanation: Liskov substitutability.
+
+[ADV-MCQ-35] Overriding + unchecked exceptions:
+A) cannot throw any
+B) can throw freely
+C) must declare them
+D) only Java 25
+Answer: B
+Explanation: Unchecked not restricted.
+
+[ADV-MCQ-36] Domain exception example:
+A) SQLException
+B) IOException
+C) InsufficientBalanceException
+D) NullPointerException
+Answer: C
+Explanation: Expresses business meaning.
+
+[ADV-MCQ-37] Controller should:
+A) expose SQLException to user
+B) map exceptions to HTTP status + safe message
+C) swallow and return 200
+D) return stack trace to client
+Answer: B
+Explanation: Security + correct API behavior.
+
+[ADV-MCQ-38] Catch-and-return-default silently risks:
+A) better monitoring
+B) masking bugs/data corruption
+C) compile error
+D) always faster
+Answer: B
+Explanation: Silent failure is dangerous.
+
+[ADV-MCQ-39] Unchecked exceptions:
+A) cannot be caught
+B) can be caught, compiler doesn’t force it
+C) always Errors
+D) compile-time only
+Answer: B
+Explanation: Any exception can be caught.
+
+[ADV-MCQ-40] finally with System.exit:
+A) always runs
+B) typically does not run
+C) runs twice
+D) compile error
+Answer: B
+Explanation: JVM terminates before finally.
+
+[ADV-MCQ-41] Manual close exception handling:
+A) ignore always
+B) throw always even if hides primary
+C) prefer try-with-resources; don’t hide primary failure
+D) call System.exit
+Answer: C
+Explanation: Preserve primary exception.
+
+[ADV-MCQ-42] Retry mechanism should:
+A) retry forever
+B) retry transient failures with limit/backoff
+C) retry NPE
+D) retry in finally
+Answer: B
+Explanation: Prevent infinite loops and retry storms.
+
+[ADV-MCQ-43] Class.forName fails with:
+A) ClassNotFoundException
+B) NoClassDefFoundError
+C) IllegalAccessError
+D) FileNotFoundException
+Answer: A
+Explanation: Checked CNFE.
+
+[ADV-MCQ-44] CNFE vs NoClassDefFoundError:
+A) same
+B) CNFE checked; NoClassDefFoundError is Error at runtime linkage
+C) both unchecked
+D) both IO
+Answer: B
+Explanation: Different failure stages.
+
+[ADV-MCQ-45] JSON parsing failure often throws:
+A) StackOverflowError
+B) library parsing exception (often unchecked)
+C) SQLException
+D) InterruptedException
+Answer: B
+Explanation: Depends on library, commonly unchecked.
+
+[ADV-MCQ-46] Wrapping exceptions should:
+A) drop message
+B) add context + preserve cause
+C) convert to Error
+D) never do
+Answer: B
+Explanation: Best practice.
+
+[ADV-MCQ-47] `throw new RuntimeException(e);`:
+A) loses cause
+B) preserves cause
+C) won’t compile
+D) only for checked
+Answer: B
+Explanation: Constructor sets cause.
+
+[ADV-MCQ-48] Preserve message + cause:
+A) new RuntimeException()
+B) new RuntimeException(e.toString())
+C) new RuntimeException("context", e)
+D) printStackTrace
+Answer: C
+Explanation: Best readability.
+
+[ADV-MCQ-49] Good exception naming:
+A) random names
+B) meaningful + suffix Exception
+C) start with My
+D) lowercase
+Answer: B
+Explanation: Standard convention.
+
+[ADV-MCQ-50] If method throws IOException, caller must:
+A) ignore
+B) catch or declare
+C) catch only RuntimeException
+D) cannot compile
+Answer: B
+Explanation: Checked contract.
+
+[ADV-MCQ-51] try-catch-finally guarantees:
+A) finally always runs even after System.exit
+B) finally generally runs after try/catch
+C) catch always runs
+D) try never runs
+Answer: B
+Explanation: Normal guarantee.
+
+[ADV-MCQ-52] Top-level exception handler:
+A) loop
+B) boundary place to log/map uncaught exceptions
+C) finally block
+D) annotation
+Answer: B
+Explanation: Central control.
+
+[ADV-MCQ-53] Avoid returning stack trace to clients because:
+A) not useful
+B) leaks internals, security risk
+C) compile error
+D) slower only
+Answer: B
+Explanation: Security and privacy.
+
+[ADV-MCQ-54] Correlation id belongs in:
+A) CPU registers
+B) logs (and safe error responses if needed)
+C) only source code
+D) array index
+Answer: B
+Explanation: Observability.
+
+[ADV-MCQ-55] Rethrow same exception `throw e;`:
+A) resets stack trace
+B) preserves original stack trace
+C) clears stack
+D) suppresses
+Answer: B
+Explanation: Same object → same stack trace.
+
+[ADV-MCQ-56] Throwing new exception without chaining:
+A) shows new stack, original lost
+B) original preserved
+C) becomes suppressed
+D) disappears
+Answer: A
+Explanation: Root cause not retained.
+
+[ADV-MCQ-57] Java 25 finally semantics:
+A) removed
+B) unchanged; prefer try-with-resources
+C) always skipped
+D) only for virtual threads
+Answer: B
+Explanation: Same rules.
+
+[ADV-MCQ-58] Virtual threads and exceptions:
+A) ignored
+B) semantics same; reporting/logging patterns matter
+C) try-catch forbidden
+D) checked removed
+Answer: B
+Explanation: Language semantics unchanged.
+
+[ADV-MCQ-59] Exception escapes a virtual-thread task:
+A) JVM shuts down
+B) task/thread ends; framework decides reporting
+C) becomes IOException
+D) suppressed
+Answer: B
+Explanation: Depends on executor/framework.
+
+[ADV-MCQ-60] “Not found” representation:
+A) throw NPE
+B) Optional if expected OR NotFoundException if exceptional
+C) return -1
+D) System.exit
+Answer: B
+Explanation: API design choice.
+
+[ADV-MCQ-61] Assertions vs exceptions:
+A) assertions replace exceptions
+B) assertions can be disabled
+C) exceptions can be disabled
+D) both compile-time only
+Answer: B
+Explanation: Don’t use assert for public validation.
+
+[ADV-MCQ-62] Checked exceptions in Java 8 lambdas:
+A) no issue
+B) usually require handling/wrapping/refactor
+C) compiler adds throws
+D) only Java 25 supports
+Answer: B
+Explanation: Functional interfaces don’t declare checked exceptions.
+
+[ADV-MCQ-63] Safe strategy for checked exceptions in lambdas:
+A) swallow
+B) wrap to unchecked or refactor out of lambda
+C) ignore compiler
+D) use Error
+Answer: B
+Explanation: Maintain correctness.
+
+[ADV-MCQ-64] equals/hashCode misuse may lead to:
+A) always NPE
+B) logic bugs; may show ClassCast/IllegalState depending
+C) IOException
+D) SQLException
+Answer: B
+Explanation: Often design/logic failures.
+
+[ADV-MCQ-65] Catch Exception to add context:
+A) return null
+B) wrap with cause and throw
+C) throw Error
+D) return in finally
+Answer: B
+Explanation: Preserve root cause.
+
+[ADV-MCQ-66] Poison pill pattern:
+A) always throw
+B) special value/message to stop consumers
+C) return in finally
+D) catch Throwable
+Answer: B
+Explanation: Controlled shutdown of consumer loops.
+
+[ADV-MCQ-67] Preferred library API:
+A) throws Exception everywhere
+B) throws specific exceptions
+C) throws Throwable
+D) throws Error
+Answer: B
+Explanation: Clear contracts.
+
+[ADV-MCQ-68] `throws Exception` on public APIs is:
+A) always best
+B) too broad; forces over-handling
+C) prevents runtime errors
+D) improves performance
+Answer: B
+Explanation: Reduces clarity.
+
+[ADV-MCQ-69] Cleanup preserving original exception:
+A) return in finally
+B) try-with-resources/suppressed strategy
+C) swallow
+D) System.gc
+Answer: B
+Explanation: Don’t override primary exception.
+
+[ADV-MCQ-70] `catch(RuntimeException e)` catches:
+A) checked exceptions too
+B) runtime exceptions and subclasses
+C) Errors
+D) IOExceptions
+Answer: B
+Explanation: By type.
+
+[ADV-MCQ-71] ExceptionInInitializerError:
+A) checked exception
+B) Error when static initializer fails
+C) Java 8 only
+D) subtype of IOException
+Answer: B
+Explanation: Static init failure.
+
+[ADV-MCQ-72] UncheckedIOException:
+A) checked
+B) RuntimeException wrapper for IOException
+C) Error
+D) deprecated
+Answer: B
+Explanation: Helps with streams/lambdas.
+
+[ADV-MCQ-73] UncheckedIOException used for:
+A) wrapping IO in lambdas/streams
+B) replacing NPE
+C) SQL handling
+D) thread closing
+Answer: A
+Explanation: Functional APIs don’t allow checked exceptions.
+
+[ADV-MCQ-74] Reflection invocation wraps exceptions in:
+A) InvocationTargetException
+B) IOException
+C) Error
+D) disappears
+Answer: A
+Explanation: Target exception accessible via getCause.
+
+[ADV-MCQ-75] InvocationTargetException contains:
+A) nothing
+B) target exception as cause
+C) only message
+D) suppressed only
+Answer: B
+Explanation: Root cause is inside.
+
+[ADV-MCQ-76] “Checked exceptions make code safer”:
+A) always true
+B) always false
+C) tradeoff; depends on design
+D) Java 25 only
+Answer: C
+Explanation: Can add boilerplate; but can improve explicitness.
+
+[ADV-MCQ-77] Best production debugging:
+A) no logs
+B) structured logs + request id + stack trace at boundary
+C) System.out only
+D) swallow Throwable
+Answer: B
+Explanation: Observability best practice.
+
+[ADV-MCQ-78] Rethrow vs wrap:
+A) always wrap
+B) always rethrow
+C) rethrow same layer; wrap/translate across layers
+D) never throw
+Answer: C
+Explanation: Keep abstraction boundaries clean.
+
+[ADV-MCQ-79] Domain exception should:
+A) express business meaning + safe context
+B) extend Error
+C) must be checked
+D) must be anonymous
+Answer: A
+Explanation: Clarity and safety.
+
+[ADV-MCQ-80] Stack trace suppression:
+A) impossible
+B) possible but advanced; use carefully
+C) Java 8 only
+D) checked only
+Answer: B
+Explanation: Can override fillInStackTrace but rarely recommended.
+
+[ADV-MCQ-81] Throwable(message, cause):
+A) doesn’t store cause
+B) stores both
+C) only RuntimeException
+D) only Error
+Answer: B
+Explanation: Standard constructor behavior.
+
+[ADV-MCQ-82] `try { } catch { }`:
+A) valid in Java 8
+B) invalid in Java
+C) Java 25 only
+D) Kotlin only
+Answer: B
+Explanation: Java requires catch type.
+
+[ADV-MCQ-83] Two resources both failing close:
+A) 0 suppressed
+B) 1 suppressed always
+C) possibly multiple suppressed exceptions
+D) infinite
+Answer: C
+Explanation: Multiple close failures can be suppressed.
+
+[ADV-MCQ-84] Close failures when body already failed:
+A) ignored
+B) suppressed
+C) replace primary
+D) become checked at runtime
+Answer: B
+Explanation: Standard try-with-resources behavior.
+
+[ADV-MCQ-85] Exceptions in constructors:
+A) swallow and partially init
+B) throw; don’t create invalid object
+C) return in finally
+D) System.exit
+Answer: B
+Explanation: Prevent invalid states.
+
+[ADV-MCQ-86] NPE in newer Java:
+A) removed
+B) can show helpful message
+C) becomes checked
+D) cannot be caught
+Answer: B
+Explanation: Helpful NPE messages exist.
+
+[ADV-MCQ-87] StackOverflowError:
+A) Exception
+B) Error often from infinite recursion
+C) checked
+D) IOException
+Answer: B
+Explanation: JVM stack exhaustion.
+
+[ADV-MCQ-88] OutOfMemoryError:
+A) safe to always recover
+B) often unstable; log + safe shutdown typical
+C) checked
+D) IOException
+Answer: B
+Explanation: Memory exhaustion may corrupt normal behavior.
+
+[ADV-MCQ-89] Continuing to allocate after OOME risks:
+A) fixing it
+B) instability/repeated failure
+C) faster program
+D) warning only
+Answer: B
+Explanation: Memory still low.
+
+[ADV-MCQ-90] Exceptions in static initializers:
+A) ignored
+B) can cause ExceptionInInitializerError
+C) become checked
+D) suppressed
+Answer: B
+Explanation: JVM wraps it.
+
+[ADV-MCQ-91] Cleaning non-memory resources best:
+A) finalize()
+B) try-with-resources (Cleaner only in special cases)
+C) System.gc()
+D) Thread.stop()
+Answer: B
+Explanation: Deterministic close is best.
+
+[ADV-MCQ-92] Thread.UncaughtExceptionHandler:
+A) handles compile errors
+B) handles uncaught exceptions at thread level
+C) prevents exceptions
+D) Java 8 only
+Answer: B
+Explanation: Last-resort handler for threads.
+
+[ADV-MCQ-93] Executor task uncaught exceptions:
+A) always go to UncaughtExceptionHandler
+B) captured and surfaced via Future/handlers
+C) crash JVM
+D) always suppressed
+Answer: B
+Explanation: Executor stores exceptions.
+
+[ADV-MCQ-94] Override + checked exceptions:
+A) can add new checked exceptions
+B) can only narrow/remove checked exceptions
+C) must keep exact same
+D) must declare Exception
+Answer: B
+Explanation: Overriding restrictions.
+
+[ADV-MCQ-95] Implement interface method with no checked exceptions; implementation:
+A) can declare checked exceptions freely
+B) cannot declare new checked exceptions
+C) must declare IOException
+D) must declare Throwable
+Answer: B
+Explanation: Interface contract must be honored.
+
+[ADV-MCQ-96] Avoid checked exceptions in functional code:
+A) ignore compiler
+B) wrap to unchecked with context
+C) return in finally
+D) throw null
+Answer: B
+Explanation: Common practical approach.
+
+[ADV-MCQ-97] assert for public API validation:
+A) great
+B) not reliable; can be disabled
+C) replaces try-catch
+D) Java 25 only
+Answer: B
+Explanation: Don’t depend on assertions.
+
+[ADV-MCQ-98] Messages + secrets:
+A) include passwords
+B) avoid secrets/PII; sanitize
+C) only include in prod
+D) include tokens
+Answer: B
+Explanation: Security best practice.
+
+[ADV-MCQ-99] Robust error handling:
+A) catch Throwable everywhere
+B) layered: validate early, translate across boundaries, central map/log
+C) never throw
+D) only print errors
+Answer: B
+Explanation: Standard architecture.
+
+[ADV-MCQ-100] Best default for production services:
+A) swallow and default
+B) fail silently
+C) boundary handling + proper mapping + preserve cause + avoid masking
+D) return in finally
+Answer: C
+Explanation: Reliability and debuggability.
+
+============================================================
+F5) PREDICT — ADVANCED (30)
+Format: Question → Answer → Explanation
+============================================================
+
+[ADV-PREDICT-1] (QUESTION)
+Code:
+static int f() {
+  try { return 1; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; return = 1
+Explanation: Return computed, then finally prints.
+
+[ADV-PREDICT-2] (QUESTION)
+Code:
+static int f() {
+  try { throw new RuntimeException("T"); }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; thrown = RuntimeException("T")
+Explanation: finally executes, then exception propagates.
+
+[ADV-PREDICT-3] (QUESTION)
+Code:
+static int f() {
+  try { throw new RuntimeException("T"); }
+  catch (RuntimeException e) { System.out.print("C"); throw e; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = CF ; thrown = RuntimeException("T")
+Explanation: catch prints C and rethrows; finally prints F.
+
+[ADV-PREDICT-4] (QUESTION)
+Code:
+static int f() {
+  try { throw new RuntimeException("T"); }
+  catch (RuntimeException e) { System.out.print("C"); return 1; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = CF ; return = 1
+Explanation: catch returns; finally still runs.
+
+[ADV-PREDICT-5] (QUESTION)
+Code:
+static int f() {
+  try { return 1; }
+  finally { System.out.print("F"); return 2; }
+}
+Answer: Output = F ; return = 2
+Explanation: return in finally overrides.
+
+[ADV-PREDICT-6] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new IllegalArgumentException();
+} catch (RuntimeException e) {
+  System.out.print("B");
+} catch (Exception e) {
+  System.out.print("C");
+} finally {
+  System.out.print("D");
+}
+Answer: Output = ABD
+Explanation: IllegalArgumentException is RuntimeException; first catch matches.
+
+[ADV-PREDICT-7] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new Exception();
+} catch (RuntimeException e) {
+  System.out.print("B");
+} catch (Exception e) {
+  System.out.print("C");
+} finally {
+  System.out.print("D");
+}
+Answer: Output = ACD
+Explanation: Not RuntimeException; caught by Exception catch.
+
+[ADV-PREDICT-8] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new Error();
+} catch (Exception e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = AC ; thrown = Error
+Explanation: catch(Exception) doesn’t catch Error; finally runs anyway.
+
+[ADV-PREDICT-9] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new Error();
+} catch (Throwable t) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: Throwable catch catches Error.
+
+[ADV-PREDICT-10] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("T");
+    throw new RuntimeException();
+  } finally {
+    System.out.print("F");
+    throw new IllegalStateException();
+  }
+}
+Answer: Output = TF ; thrown = IllegalStateException
+Explanation: finally throws and overrides original exception.
+
+[ADV-PREDICT-11] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("T");
+    throw new RuntimeException();
+  } catch (RuntimeException e) {
+    System.out.print("C");
+    throw new IllegalArgumentException();
+  } finally {
+    System.out.print("F");
+  }
+}
+Answer: Output = TCF ; thrown = IllegalArgumentException
+Explanation: catch throws new exception; finally prints F.
+
+[ADV-PREDICT-12] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("T");
+    throw new RuntimeException();
+  } catch (RuntimeException e) {
+    System.out.print("C");
+    throw new IllegalArgumentException();
+  } finally {
+    System.out.print("F");
+    throw new IllegalStateException();
+  }
+}
+Answer: Output = TCF ; thrown = IllegalStateException
+Explanation: finally throws, overriding catch-thrown exception.
+
+[ADV-PREDICT-13] (QUESTION)
+Code:
+static void f() {
+  try { System.out.print("A"); }
+  finally { System.out.print("B"); }
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: Normal flow continues after try-finally.
+
+[ADV-PREDICT-14] (QUESTION)
+Code:
+static void f() {
+  try { System.out.print("A"); return; }
+  finally { System.out.print("B"); }
+}
+Answer: Output = AB
+Explanation: finally runs even after return.
+
+[ADV-PREDICT-15] (QUESTION)
+Code:
+static int f() {
+  try { return 1; }
+  catch (Exception e) { return 2; }
+  finally { System.out.print("F"); }
+}
+Answer: Output = F ; return = 1
+Explanation: No exception; try return used; finally prints.
+
+[ADV-PREDICT-16] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  int[] x = null;
+  System.out.print(x.length);
+} catch (NullPointerException e) {
+  System.out.print("B");
+} finally {
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: NPE caught; finally prints.
+
+[ADV-PREDICT-17] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  int x = Integer.parseInt("x");
+  System.out.print("B");
+} catch (NumberFormatException e) {
+  System.out.print("C");
+} finally {
+  System.out.print("D");
+}
+Answer: Output = ACD
+Explanation: parseInt fails; catch prints C; finally prints D.
+
+[ADV-PREDICT-18] (QUESTION)
+Code:
+static void f() {
+  try { throw null; }
+  catch (Exception e) { System.out.print(e.getClass().getSimpleName()); }
+}
+Answer: Output = NullPointerException
+Explanation: throw null triggers NPE; caught as Exception; prints class name.
+
+[ADV-PREDICT-19] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new RuntimeException("R");
+} catch (RuntimeException e) {
+  System.out.print(e.getMessage());
+}
+Answer: Output = AR
+Explanation: prints A then message "R".
+
+[ADV-PREDICT-20] (QUESTION)
+Code:
+try {
+  System.out.print("A");
+  throw new RuntimeException();
+} catch (RuntimeException e) {
+  System.out.print(e.getMessage());
+}
+Answer: Output = Anull
+Explanation: message is null.
+
+[ADV-PREDICT-21] (QUESTION)
+Code:
+static int f() {
+  int x = 0;
+  try { x = 1; return x; }
+  finally { x = 2; }
+}
+Answer: return = 1
+Explanation: Primitive return value already computed; finally changes local only.
+
+[ADV-PREDICT-22] (QUESTION)
+Code:
+static int f() {
+  int[] a = {1};
+  try { return a[0]; }
+  finally { a[0] = 9; }
+}
+Answer: return = 1
+Explanation: Returned primitive value already computed.
+
+[ADV-PREDICT-23] (QUESTION)
+Code:
+static String f() {
+  StringBuilder sb = new StringBuilder("A");
+  try { return sb.toString(); }
+  finally { sb.append("B"); }
+}
+Answer: return = "A"
+Explanation: toString creates a new String before finally mutates sb.
+
+[ADV-PREDICT-24] (QUESTION)
+Code:
+static StringBuilder f() {
+  StringBuilder sb = new StringBuilder("A");
+  try { return sb; }
+  finally { sb.append("B"); }
+}
+Answer: returned object content = "AB"
+Explanation: Same object reference returned; finally mutates it.
+
+[ADV-PREDICT-25] (QUESTION)
+Code:
+static void f() {
+  try { System.out.print("A"); }
+  finally { System.out.print("B"); }
+  try { System.out.print("C"); }
+  finally { System.out.print("D"); }
+}
+Answer: Output = ABCD
+Explanation: Both try-finally blocks execute sequentially.
+
+[ADV-PREDICT-26] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("A");
+    try { throw new RuntimeException(); }
+    finally { System.out.print("B"); }
+  } catch (RuntimeException e) {
+    System.out.print("C");
+  } finally {
+    System.out.print("D");
+  }
+}
+Answer: Output = ABCD
+Explanation: Inner finally B runs before outer catch; then C; then D.
+
+[ADV-PREDICT-27] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("A");
+    try { throw new RuntimeException(); }
+    catch (RuntimeException e) { System.out.print("B"); throw e; }
+    finally { System.out.print("C"); }
+  } catch (RuntimeException e) {
+    System.out.print("D");
+  }
+}
+Answer: Output = ABCD
+Explanation: Inner catch prints B, rethrows; inner finally prints C; outer catch prints D.
+
+[ADV-PREDICT-28] (QUESTION)
+Code:
+static void f() {
+  try {
+    System.out.print("A");
+    throw new RuntimeException();
+  } catch (RuntimeException e) {
+    System.out.print("B");
+  } finally {
+    System.out.print("C");
+  }
+  System.out.print("D");
+}
+Answer: Output = ABCD
+Explanation: Exception handled; execution continues after finally.
+
+[ADV-PREDICT-29] (QUESTION)
+Code:
+static void f() {
+  try { System.out.print("A"); }
+  catch (RuntimeException e) { System.out.print("B"); }
+  System.out.print("C");
+}
+Answer: Output = AC
+Explanation: No exception, so catch skipped.
+
+[ADV-PREDICT-30] (QUESTION)
+Code:
+static void f() {
+  try { System.out.print("A"); throw new RuntimeException(); }
+  catch (Exception e) { System.out.print("B"); }
+  System.out.print("C");
+}
+Answer: Output = ABC
+Explanation: RuntimeException caught by catch(Exception); then prints C.
+
+============================================================
+F6) EDGE / TRICK QUESTIONS — ADVANCED (25)
+Format: Question → Answer → Explanation
+============================================================
+
+[ADV-EDGE-1]
+Question: Why is `return` in finally considered dangerous?
+Answer: It hides real return values and hides exceptions.
+Explanation: Debugging becomes hard because the “real” failure/result is overridden.
+
+[ADV-EDGE-2]
+Question: If try throws and finally throws, which do you see?
+Answer: finally exception.
+Explanation: finally overrides earlier exceptions.
+
+[ADV-EDGE-3]
+Question: In try-with-resources, how to inspect close failures?
+Answer: Use primaryException.getSuppressed().
+Explanation: Close failures become suppressed when body throws.
+
+[ADV-EDGE-4]
+Question: Why avoid `throws Exception` in public APIs?
+Answer: It’s too broad and forces callers to over-handle.
+Explanation: Specific contracts improve correctness and clarity.
+
+[ADV-EDGE-5]
+Question: Difference between ClassNotFoundException and NoClassDefFoundError?
+Answer: CNFE is checked (lookup); NoClassDefFoundError is Error (linkage/runtime).
+Explanation: Different failure phases.
+
+[ADV-EDGE-6]
+Question: In ExecutorService, why exceptions may not appear in logs?
+Answer: They are stored in Future; if you never call get/handle, you never observe them.
+Explanation: Need Future.get() or callbacks.
+
+[ADV-EDGE-7]
+Question: CompletableFuture exception is wrapped in what?
+Answer: CompletionException (often).
+Explanation: Unwrap via getCause().
+
+[ADV-EDGE-8]
+Question: Best practice when catching InterruptedException but can’t throw it?
+Answer: Thread.currentThread().interrupt(); then stop/propagate appropriately.
+Explanation: Preserves cancellation.
+
+[ADV-EDGE-9]
+Question: Should you catch Throwable globally?
+Answer: Generally no; only at top boundary for logging/shutdown.
+Explanation: It catches Errors and can keep app running in unsafe state.
+
+[ADV-EDGE-10]
+Question: How to attach context safely?
+Answer: Wrap exception with message + cause; avoid secrets.
+Explanation: e.g., include ids, not passwords/tokens.
+
+[ADV-EDGE-11]
+Question: Can close() exceptions replace body exception in try-with-resources?
+Answer: No; they are suppressed (if body already threw).
+Explanation: Primary is body exception.
+
+[ADV-EDGE-12]
+Question: If body succeeds but close() fails, what happens?
+Answer: close() exception is thrown.
+Explanation: No primary exception, so close failure becomes primary.
+
+[ADV-EDGE-13]
+Question: Multi-catch can include parent-child?
+Answer: No.
+Explanation: Causes redundancy/unreachable semantics; compiler rejects.
+
+[ADV-EDGE-14]
+Question: How to avoid checked exceptions inside streams?
+Answer: Refactor out of stream OR wrap into UncheckedIOException/RuntimeException with context.
+Explanation: Functional interfaces usually don’t declare checked throws.
+
+[ADV-EDGE-15]
+Question: Why not expose stack traces to clients?
+Answer: Security risk and leaks internals.
+Explanation: Give error code + correlation id.
+
+[ADV-EDGE-16]
+Question: What’s the danger of swallowing exceptions in service layer?
+Answer: Silent failures, partial updates, corrupted data, hard debugging.
+Explanation: Always handle explicitly.
+
+[ADV-EDGE-17]
+Question: When might you intentionally suppress stack traces?
+Answer: Very hot path where exceptions are used as signals (rare), after careful design.
+Explanation: Advanced technique; use sparingly.
+
+[ADV-EDGE-18]
+Question: Does finally run with kill -9?
+Answer: No.
+Explanation: OS kills process immediately.
+
+[ADV-EDGE-19]
+Question: Does finally run with System.exit?
+Answer: Usually no.
+Explanation: JVM termination ends execution.
+
+[ADV-EDGE-20]
+Question: What is exception translation in layered architecture?
+Answer: Convert low-level to domain exception at boundary, keep cause.
+Explanation: Keeps layers decoupled.
+
+[ADV-EDGE-21]
+Question: Why is catching Exception at very top sometimes OK?
+Answer: As a last-resort to log and return safe response/shutdown.
+Explanation: Boundary handling is different from internal logic handling.
+
+[ADV-EDGE-22]
+Question: How to prevent duplicate logging?
+Answer: Log once at boundary; rethrow with context internally.
+Explanation: Avoid multiple stack traces for same error.
+
+[ADV-EDGE-23]
+Question: In Java 25 with many virtual threads, what changes?
+Answer: Exception semantics same; but observability/log volume becomes important.
+Explanation: Need correlation IDs and log control.
+
+[ADV-EDGE-24]
+Question: If you rethrow same exception object, does stack trace change?
+Answer: No.
+Explanation: Same Throwable instance keeps original stack trace.
+
+[ADV-EDGE-25]
+Question: If you throw new exception without cause, what’s missing?
+Answer: Original cause chain.
+Explanation: Root reason and original throw site are lost.
+
+============================================================
+END OF APPENDIX F
+============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

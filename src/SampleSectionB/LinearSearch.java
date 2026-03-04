@@ -1,4 +1,4 @@
-package SampleSectionB;
+package TrainigChetu.src.SampleSectionB;
 
 public class LinearSearch {
     static void main() {

@@ -1,4 +1,4 @@
-package TrainigChetu.src.assignmentPDFQeus;
+package assignmentPDFQeus;
 
 //interface A {
 //    default void m(){
@@ -52,5 +52,6 @@ public class Test_01 {
         System.out.println("-----------------");
         Parent cc = new Child();
         cc.show();
+
     }
 }

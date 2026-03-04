@@ -1,4 +1,4 @@
-package SampleSectionB;
+package TrainigChetu.src.SampleSectionB;
 
 import java.util.Scanner;
 

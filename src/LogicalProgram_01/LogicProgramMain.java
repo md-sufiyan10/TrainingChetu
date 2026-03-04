@@ -31,7 +31,7 @@ public class LogicProgramMain {
                 case 2->{
                     System.out.println("Enter a Number to Check palindromeNumber:");
                     int num=sc.nextInt();
-                   boolean isPalindrome = PalindromeNumber.isPalindrome(num);
+                   boolean isPalindrome = TrainigChetu.src.LogicalProgram_01.PalindromeNumber.isPalindrome(num);
                    if (isPalindrome )
                        System.out.println("Your Number is Palindrome:"+num);
                    else System.out.println("Your number is not a palindrome number:"+num);

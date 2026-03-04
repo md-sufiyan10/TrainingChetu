@@ -1,4 +1,4 @@
-package SampleSectionB;
+package TrainigChetu.src.SampleSectionB;
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ class _04BinarySearchCharacter {
         return false;
     }
 
-    // Method to display result
+    // Method to display a result
     public void displayResult(boolean found) {
         if (found)
             System.out.println( "Search Successful");

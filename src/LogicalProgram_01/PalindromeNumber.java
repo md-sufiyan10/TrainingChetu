@@ -1,4 +1,4 @@
-package LogicalProgram_01;
+package TrainigChetu.src.LogicalProgram_01;
 
 public class PalindromeNumber {
 
