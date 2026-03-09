@@ -1,0 +1,56 @@
+
+Concurrent API - Synchronizes
+The Synchronizes are provided by the java.util.concurrent package.
+
+It controls flow of threads, ensuring proper synchronization and collaboration
+
+It is supported by Semaphore, CountDownLatch, CyclicBarrier, Exchanger and Phaser.
+
+Why is AtomicInteger faster than synchronized?
+synchronized->
+Lock
+context switch
+unlock
+
+AtomicInteger->
+CAS instruction
+retry if fail
+----------------------
+AtomicInteger uses lock-free CAS operations
+implemented via CPU atomic instructions.
+It avoids thread blocking and context switching.
+--------------------
+Semaphore
+A semaphore controls access to a shared resource through the use of a counter (permit count).
+If the counter is greater than zero, then access is allowed. If it is zero,
+then access is denied, and any waiting threads will be blocked until a permit can be acquired.
+To access the resource, a thread must be granted a permit from the semaphore.
+------
+Semaphore
+Semaphore has two constructors:
+Semaphore(int permits)
+Semaphore(int permits, boolean fair)
+
+Here, permits is specified by the permit count — the number of permits available for acquiring.
+If fair is true, then the Semaphore will guarantee first-in-first-out granting of permits,
+ ensuring that the longest waiting thread gets permits.
+If fair is false, then the order of thread acquisition is not guaranteed to be fair.
+---------
+Semaphore
+To release a permit, call the release method, which has two forms:
+
+void release()
+void release(int permits)
+
+1. void release()
+This method is used to release a single permit back to the semaphore.
+It increases the number of available permits by 1.
+
+If other threads are waiting to acquire permits, this may unblock one of them.
+
+2. void release(int permits)
+This method is used to release a specified number of permits back to the semaphore.
+
+It increases the number of available permits by the specified amount.
+
+If other threads are waiting to acquire permits, this may unblock multiple threads depending on the number of permits released.
